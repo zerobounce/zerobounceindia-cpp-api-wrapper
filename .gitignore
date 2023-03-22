@@ -24,9 +24,15 @@
 *.lai
 *.la
 *.a
+*.o
 *.lib
 
 # Executables
 *.exe
 *.out
 *.app
+
+# Other
+.vscode
+build
+main.cpp
