@@ -43,6 +43,7 @@ class ZBGetApiUsageResponse {
         int subStatusAllowed = 0;
         std::string startDate;
         std::string endDate;
+        std::string error;
 
         std::string toString();
 
