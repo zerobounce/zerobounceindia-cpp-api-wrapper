@@ -6,6 +6,7 @@
 
 #include "ZeroBounce/ZBErrorResponse.h"
 #include "ZeroBounce/ZBCreditsResponse.h"
+#include "ZeroBounce/ZBGetApiUsageResponse.h"
 
 class ZeroBounce {
     private:
@@ -38,6 +39,13 @@ class ZeroBounce {
 
         void getCredits(
             OnSuccessCallback<ZBCreditsResponse> successCallback,
+            OnErrorCallback errorCallback
+        );
+
+        void getApiUsage(
+            std::tm startDate,
+            std::tm endDate,
+            OnSuccessCallback<ZBGetApiUsageResponse> successCallback,
             OnErrorCallback errorCallback
         );
 

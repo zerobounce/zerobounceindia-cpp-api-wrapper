@@ -1,3 +1,4 @@
+#include <ctime>
 #include <iostream>
 
 #include <cpr/cpr.h>
@@ -41,11 +42,33 @@ void ZeroBounce::getCredits(
     if (invalidApiKey(errorCallback)) return;
 
     sendRequest(
-        apiBaseUrl + "/getcredits",
+        apiBaseUrl + "/getcredits?api_key=" + apiKey,
         successCallback,
         errorCallback
     );
 
+}
+
+void ZeroBounce::getApiUsage(
+    std::tm startDate,
+    std::tm endDate,
+    OnSuccessCallback<ZBGetApiUsageResponse> successCallback,
+    OnErrorCallback errorCallback
+) {
+    if (invalidApiKey(errorCallback)) return;
+
+    std::string dateFormat = "%Y-%m-%d";
+    std::ostringstream url;
+
+    url << apiBaseUrl << "/getapiusage?api_key=" << apiKey
+        << "&start_date=" << std::put_time(&startDate, dateFormat.c_str())
+        << "&end_date=" << std::put_time(&endDate, dateFormat.c_str());
+
+    sendRequest(
+        url.str(),
+        successCallback,
+        errorCallback
+    );
 }
 
 template <typename T>
@@ -56,7 +79,6 @@ void ZeroBounce::sendRequest(
 ) {
     cpr::Response r = cpr::Get(
         cpr::Url{urlPath},
-        cpr::Parameters{{"api_key", apiKey}},
         cpr::Header{{"Accept", "application/json"}}
     );
     
