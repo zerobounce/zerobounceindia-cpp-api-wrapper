@@ -7,6 +7,7 @@
 #include "ZeroBounce/ZBErrorResponse.h"
 #include "ZeroBounce/ZBCreditsResponse.h"
 #include "ZeroBounce/ZBGetApiUsageResponse.h"
+#include "ZeroBounce/ZBValidateResponse.h"
 
 class ZeroBounce {
     private:
@@ -46,6 +47,13 @@ class ZeroBounce {
             std::tm startDate,
             std::tm endDate,
             OnSuccessCallback<ZBGetApiUsageResponse> successCallback,
+            OnErrorCallback errorCallback
+        );
+
+        void validate(
+            std::string email,
+            std::string ipAddress,
+            OnSuccessCallback<ZBValidateResponse> successCallback,
             OnErrorCallback errorCallback
         );
 

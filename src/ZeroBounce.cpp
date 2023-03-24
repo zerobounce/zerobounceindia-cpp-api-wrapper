@@ -71,6 +71,23 @@ void ZeroBounce::getApiUsage(
     );
 }
 
+void ZeroBounce::validate(
+    std::string email,
+    std::string ipAddress,
+    OnSuccessCallback<ZBValidateResponse> successCallback,
+    OnErrorCallback errorCallback
+) {
+    if (invalidApiKey(errorCallback)) return;
+
+    sendRequest(
+        apiBaseUrl + "/validate?api_key=" + apiKey +
+            "&email=" + email +
+            "&ip_address=" + (ipAddress.empty() ? "" : ipAddress),
+        successCallback,
+        errorCallback
+    );
+}
+
 template <typename T>
 void ZeroBounce::sendRequest(
     std::string urlPath,

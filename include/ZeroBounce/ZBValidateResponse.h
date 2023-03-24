@@ -33,7 +33,7 @@ class ZBValidateResponse {
         std::string processedAt;
         std::string error;
 
-        std::string toString();
+        std::string toString(bool isBatch = false);
 
         static ZBValidateResponse from_json(const json& j);
 };
