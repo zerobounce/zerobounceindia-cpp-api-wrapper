@@ -14,6 +14,6 @@ std::string ZBCreditsResponse::toString()
 
 ZBCreditsResponse ZBCreditsResponse::from_json(const json& j) {
     ZBCreditsResponse r;
-    j.at("Credits").get_to(r.credits);
+    r.credits = j.at("Credits").get<std::string>();
     return r;
 }

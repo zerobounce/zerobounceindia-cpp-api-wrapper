@@ -5,8 +5,12 @@
 std::string ZBValidateResponse::toString(bool isBatch)
 {
     std::stringstream stringStream;
-    stringStream << "ZBValidateResponse{" <<
-                "address='" << address << '\'' <<
+
+    if (!isBatch) {
+        stringStream << "ZBValidateResponse";
+    }
+
+    stringStream << "{address='" << address << '\'' <<
                 ", status=" << status <<
                 ", subStatus=" << subStatus <<
                 ", freeEmail=" << freeEmail <<
@@ -47,8 +51,10 @@ ZBValidateResponse ZBValidateResponse::from_json(const json& j) {
         r.freeEmail = j.at("free_email").get<bool>();
         r.didYouMean = j.at("did_you_mean").is_null() ?
             "" : j.at("did_you_mean").get<std::string>();
-        r.account = j.at("account").get<std::string>();
-        r.domain = j.at("domain").get<std::string>();
+        r.account = j.at("account").is_null() ?
+            "" : j.at("account").get<std::string>();
+        r.domain = j.at("domain").is_null() ?
+            "" : j.at("domain").get<std::string>();
         r.domainAgeDays = j.at("domain_age_days").is_null() ?
             "" : j.at("domain_age_days").get<std::string>();
         r.smtpProvider = j.at("smtp_provider").is_null() ?
@@ -74,7 +80,7 @@ ZBValidateResponse ZBValidateResponse::from_json(const json& j) {
             "" : j.at("city").get<std::string>();
         r.zipCode = j.at("zipcode").is_null() ?
             "" : j.at("zipcode").get<std::string>();
-        j.at("processed_at").get_to(r.processedAt);
+        r.processedAt = j.at("processed_at").get<std::string>();
     }
     
     return r;

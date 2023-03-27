@@ -3,11 +3,13 @@
 
 #include <functional>
 #include <string>
+#include <vector>
 
 #include "ZeroBounce/ZBErrorResponse.h"
 #include "ZeroBounce/ZBCreditsResponse.h"
 #include "ZeroBounce/ZBGetApiUsageResponse.h"
 #include "ZeroBounce/ZBValidateResponse.h"
+#include "ZeroBounce/ZBValidateBatchResponse.h"
 
 class ZeroBounce {
     private:
@@ -54,6 +56,12 @@ class ZeroBounce {
             std::string email,
             std::string ipAddress,
             OnSuccessCallback<ZBValidateResponse> successCallback,
+            OnErrorCallback errorCallback
+        );
+
+        void validateBatch(
+            std::vector<ZBEmailToValidate> emailBatch,
+            OnSuccessCallback<ZBValidateBatchResponse> successCallback,
             OnErrorCallback errorCallback
         );
 

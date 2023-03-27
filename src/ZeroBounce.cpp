@@ -88,6 +88,53 @@ void ZeroBounce::validate(
     );
 }
 
+void ZeroBounce::validateBatch(
+    std::vector<ZBEmailToValidate> emailBatch,
+    OnSuccessCallback<ZBValidateBatchResponse> successCallback,
+    OnErrorCallback errorCallback
+) {
+    if (invalidApiKey(errorCallback)) return;
+
+    json payload;
+    payload["api_key"] = apiKey;
+
+    for (auto& email : emailBatch) {
+        json emailObj;
+        emailObj["email_address"] = email.emailAddress;
+
+        if (email.ipAddress.empty()) {
+            emailObj["ip_address"] = json::value_t::null;
+        } else {
+            emailObj["ip_address"] = email.ipAddress;
+        }
+        
+        payload["email_batch"].push_back(emailObj);
+    }
+
+    cpr::Response r = cpr::Post(
+        cpr::Url{bulkApiBaseUrl + "/validatebatch"},
+        cpr::Header{
+            {"Accept", "application/json"},
+            {"Content-Type", "application/json"}
+        },
+        cpr::Body{payload.dump()}
+    );
+    
+    std::string rsp = r.text;
+
+    if (r.status_code > 299) {
+        if (errorCallback) {
+            ZBErrorResponse errorResponse = ZBErrorResponse::parseError(rsp);
+            errorCallback(errorResponse);
+        }
+    } else {
+        if (successCallback) {
+            ZBValidateBatchResponse response = ZBValidateBatchResponse::from_json(json::parse(rsp));
+            successCallback(response);
+        }
+    }
+}
+
 template <typename T>
 void ZeroBounce::sendRequest(
     std::string urlPath,
