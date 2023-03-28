@@ -1,4 +1,7 @@
 #include <ctime>
+#include <exception>
+#include <filesystem>
+#include <fstream>
 #include <iostream>
 
 #include <cpr/cpr.h>
@@ -6,6 +9,7 @@
 
 #include "ZeroBounce/ZeroBounce.h"
 
+namespace fs = std::filesystem;
 using json = nlohmann::json;
 
 ZeroBounce::ZeroBounce() {
@@ -95,43 +99,48 @@ void ZeroBounce::validateBatch(
 ) {
     if (invalidApiKey(errorCallback)) return;
 
-    json payload;
-    payload["api_key"] = apiKey;
+    try {
+        json payload;
+        payload["api_key"] = apiKey;
 
-    for (auto& email : emailBatch) {
-        json emailObj;
-        emailObj["email_address"] = email.emailAddress;
+        for (auto& email : emailBatch) {
+            json emailObj;
+            emailObj["email_address"] = email.emailAddress;
 
-        if (email.ipAddress.empty()) {
-            emailObj["ip_address"] = json::value_t::null;
+            if (email.ipAddress.empty()) {
+                emailObj["ip_address"] = json::value_t::null;
+            } else {
+                emailObj["ip_address"] = email.ipAddress;
+            }
+
+            payload["email_batch"].push_back(emailObj);
+        }
+
+        cpr::Response reqResponse = cpr::Post(
+            cpr::Url{bulkApiBaseUrl + "/validatebatch"},
+            cpr::Header{
+                {"Accept", "application/json"},
+                {"Content-Type", "application/json"}
+            },
+            cpr::Body{payload.dump()}
+        );
+        
+        std::string rsp = reqResponse.text;
+
+        if (reqResponse.status_code > 299) {
+            if (errorCallback) {
+                ZBErrorResponse errorResponse = ZBErrorResponse::parseError(rsp);
+                errorCallback(errorResponse);
+            }
         } else {
-            emailObj["ip_address"] = email.ipAddress;
+            if (successCallback) {
+                ZBValidateBatchResponse response = ZBValidateBatchResponse::from_json(json::parse(rsp));
+                successCallback(response);
+            }
         }
-
-        payload["email_batch"].push_back(emailObj);
-    }
-
-    cpr::Response r = cpr::Post(
-        cpr::Url{bulkApiBaseUrl + "/validatebatch"},
-        cpr::Header{
-            {"Accept", "application/json"},
-            {"Content-Type", "application/json"}
-        },
-        cpr::Body{payload.dump()}
-    );
-    
-    std::string rsp = r.text;
-
-    if (r.status_code > 299) {
-        if (errorCallback) {
-            ZBErrorResponse errorResponse = ZBErrorResponse::parseError(rsp);
-            errorCallback(errorResponse);
-        }
-    } else {
-        if (successCallback) {
-            ZBValidateBatchResponse response = ZBValidateBatchResponse::from_json(json::parse(rsp));
-            successCallback(response);
-        }
+    } catch (std::exception e) {
+        ZBErrorResponse errorResponse = ZBErrorResponse::parseError(e.what());
+        errorCallback(errorResponse);
     }
 }
 
@@ -153,29 +162,51 @@ void ZeroBounce::fileStatus(
     fileStatusInternal(false, fileId, successCallback, errorCallback);
 }
 
+void ZeroBounce::getFile(
+    std::string fileId,
+    std::string localDownloadPath,
+    OnSuccessCallback<ZBGetFileResponse> successCallback,
+    OnErrorCallback errorCallback
+) {
+    getFileInternal(false, fileId, localDownloadPath, successCallback, errorCallback);
+}
+
+void ZeroBounce::deleteFile(
+    std::string fileId,
+    OnSuccessCallback<ZBDeleteFileResponse> successCallback,
+    OnErrorCallback errorCallback
+) {
+    deleteFileInternal(false, fileId, successCallback, errorCallback);
+}
+
 template <typename T>
 void ZeroBounce::sendRequest(
     std::string urlPath,
     OnSuccessCallback<T> successCallback,
     OnErrorCallback errorCallback
 ) {
-    cpr::Response r = cpr::Get(
-        cpr::Url{urlPath},
-        cpr::Header{{"Accept", "application/json"}}
-    );
-    
-    std::string rsp = r.text;
+    try {
+        cpr::Response reqResponse = cpr::Get(
+            cpr::Url{urlPath},
+            cpr::Header{{"Accept", "application/json"}}
+        );
+        
+        std::string rsp = reqResponse.text;
 
-    if (r.status_code > 299) {
-        if (errorCallback) {
-            ZBErrorResponse errorResponse = ZBErrorResponse::parseError(rsp);
-            errorCallback(errorResponse);
+        if (reqResponse.status_code > 299) {
+            if (errorCallback) {
+                ZBErrorResponse errorResponse = ZBErrorResponse::parseError(rsp);
+                errorCallback(errorResponse);
+            }
+        } else {
+            if (successCallback) {
+                T response = T::from_json(json::parse(rsp));
+                successCallback(response);
+            }
         }
-    } else {
-        if (successCallback) {
-            T response = T::from_json(json::parse(rsp));
-            successCallback(response);
-        }
+    } catch (std::exception e) {
+        ZBErrorResponse errorResponse = ZBErrorResponse::parseError(e.what());
+        errorCallback(errorResponse);
     }
 }
 
@@ -189,54 +220,59 @@ void ZeroBounce::sendFileInternal(
 ) {
     if (invalidApiKey(errorCallback)) return;
 
-    std::string urlPath = (scoring ? bulkApiScoringBaseUrl : bulkApiBaseUrl) + "/sendFile";
+    try {
+        std::string urlPath = (scoring ? bulkApiScoringBaseUrl : bulkApiBaseUrl) + "/sendFile";
 
-    cpr::Multipart multipart{
-        {"api_key", apiKey},
-        {"file", cpr::File{filePath}},
-        {"email_address_column", emailAddressColumnIndex}
-    };
+        cpr::Multipart multipart{
+            {"api_key", apiKey},
+            {"file", cpr::File{filePath}},
+            {"email_address_column", emailAddressColumnIndex}
+        };
 
-    if (!scoring) {
-        if (options.firstNameColumn > 0) {
-            multipart.parts.emplace_back(cpr::Part{"first_name_column", options.firstNameColumn});
+        if (!scoring) {
+            if (options.firstNameColumn > 0) {
+                multipart.parts.emplace_back(cpr::Part{"first_name_column", options.firstNameColumn});
+            }
+            if (options.lastNameColumn > 0) {
+                multipart.parts.emplace_back(cpr::Part{"last_name_column", options.lastNameColumn});
+            }
+            if (options.genderColumn > 0) {
+                multipart.parts.emplace_back(cpr::Part{"gender_column", options.genderColumn});
+            }
+            if (options.ipAddressColumn > 0) {
+                multipart.parts.emplace_back(cpr::Part{"ip_address_column", options.ipAddressColumn});
+            }
         }
-        if (options.lastNameColumn > 0) {
-            multipart.parts.emplace_back(cpr::Part{"last_name_column", options.lastNameColumn});
-        }
-        if (options.genderColumn > 0) {
-            multipart.parts.emplace_back(cpr::Part{"gender_column", options.genderColumn});
-        }
-        if (options.ipAddressColumn > 0) {
-            multipart.parts.emplace_back(cpr::Part{"ip_address_column", options.ipAddressColumn});
-        }
-    }
 
-    if (!options.returnUrl.empty()) {
-            multipart.parts.emplace_back(cpr::Part{"return_url", options.returnUrl});
-    }
-    
-    multipart.parts.emplace_back(cpr::Part{"has_header_row", options.hasHeaderRow});
-    multipart.parts.emplace_back(cpr::Part{"remove_duplicate", options.removeDuplicate});
-
-    cpr::Response r = cpr::Post(
-        cpr::Url{urlPath},
-        cpr::Header{{"Content-Type", "multipart/form-data"}},
-        multipart
-    );
-
-    std::string rsp = r.text;
-
-    if (r.status_code > 299) {
-        if (errorCallback) {
-            ZBErrorResponse errorResponse = ZBErrorResponse::parseError(rsp);
-            errorCallback(errorResponse);
+        if (!options.returnUrl.empty()) {
+                multipart.parts.emplace_back(cpr::Part{"return_url", options.returnUrl});
         }
-    } else {
-        if (successCallback) {
-            ZBSendFileResponse response = ZBSendFileResponse::from_json(json::parse(rsp));
-            successCallback(response);
+        
+        multipart.parts.emplace_back(cpr::Part{"has_header_row", options.hasHeaderRow});
+        multipart.parts.emplace_back(cpr::Part{"remove_duplicate", options.removeDuplicate});
+
+        cpr::Response reqResponse = cpr::Post(
+            cpr::Url{urlPath},
+            cpr::Header{{"Content-Type", "multipart/form-data"}},
+            multipart
+        );
+
+        std::string rsp = reqResponse.text;
+
+        if (reqResponse.status_code > 299) {
+            if (errorCallback) {
+                ZBErrorResponse errorResponse = ZBErrorResponse::parseError(rsp);
+                errorCallback(errorResponse);
+            }
+        } else {
+            if (successCallback) {
+                ZBSendFileResponse response = ZBSendFileResponse::from_json(json::parse(rsp));
+                successCallback(response);
+            }
         }
+    } catch (std::exception e) {
+        ZBErrorResponse errorResponse = ZBErrorResponse::parseError(e.what());
+        errorCallback(errorResponse);
     }
 }
 
@@ -250,6 +286,80 @@ void ZeroBounce::fileStatusInternal(
 
     sendRequest(
         (scoring ? bulkApiScoringBaseUrl : bulkApiBaseUrl) + "/filestatus?api_key=" + apiKey
+            + "&file_id=" + fileId,
+        successCallback,
+        errorCallback
+    );
+}
+
+void ZeroBounce::getFileInternal(
+    bool scoring,
+    std::string fileId,
+    std::string localDownloadPath,
+    OnSuccessCallback<ZBGetFileResponse> successCallback,
+    OnErrorCallback errorCallback
+) {
+    if (invalidApiKey(errorCallback)) return;
+
+    try {
+        std::string urlPath = (scoring ? bulkApiScoringBaseUrl : bulkApiBaseUrl)
+            + "/getFile?api_key=" + apiKey + "&file_id=" + fileId;
+        
+        cpr::Response reqResponse = cpr::Get(cpr::Url{urlPath});
+
+        std::string contentType = reqResponse.header["Content-Type"];
+
+        std::string rsp = reqResponse.text;
+
+        if (reqResponse.status_code > 299) {
+            if (errorCallback) {
+                ZBErrorResponse errorResponse = ZBErrorResponse::parseError(rsp);
+                errorCallback(errorResponse);
+            }
+        } else {
+            if (successCallback) {
+                if (contentType != "application/json") {
+                    fs::path filePath(localDownloadPath);
+
+                    if (fs::is_directory(filePath)) {
+                        ZBErrorResponse errorResponse = ZBErrorResponse::parseError("Invalid file path");
+                        errorCallback(errorResponse);
+                        return;
+                    }
+
+                    fs::create_directories(filePath.parent_path());
+
+                    std::ofstream fileStream(filePath, std::ofstream::out | std::ofstream::binary);
+
+                    fileStream.write(rsp.c_str(), rsp.size());
+                    fileStream.close();
+
+                    ZBGetFileResponse response;
+                    response.success = true;
+                    response.localFilePath = localDownloadPath;
+                    successCallback(response);
+                } else {
+                    ZBGetFileResponse response = ZBGetFileResponse::from_json(json::parse(rsp));
+                    successCallback(response);
+                }
+            }
+        }
+    } catch (std::exception e) {
+        ZBErrorResponse errorResponse = ZBErrorResponse::parseError(e.what());
+        errorCallback(errorResponse);
+    }
+}
+
+void ZeroBounce::deleteFileInternal(
+    bool scoring,
+    std::string fileId,
+    OnSuccessCallback<ZBDeleteFileResponse> successCallback,
+    OnErrorCallback errorCallback
+) {
+    if (invalidApiKey(errorCallback)) return;
+
+    sendRequest(
+        (scoring ? bulkApiScoringBaseUrl : bulkApiBaseUrl) + "/deletefile?api_key=" + apiKey
             + "&file_id=" + fileId,
         successCallback,
         errorCallback

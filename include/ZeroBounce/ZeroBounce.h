@@ -12,6 +12,8 @@
 #include "ZeroBounce/ZBValidateBatchResponse.h"
 #include "ZeroBounce/ZBSendFileResponse.h"
 #include "ZeroBounce/ZBFileStatusResponse.h"
+#include "ZeroBounce/ZBGetFileResponse.h"
+#include "ZeroBounce/ZBDeleteFileResponse.h"
 
 template<typename T>
 using OnSuccessCallback = std::function<void(T response)>;
@@ -58,6 +60,21 @@ class ZeroBounce {
             bool scoring,
             std::string fileId,
             OnSuccessCallback<ZBFileStatusResponse> successCallback,
+            OnErrorCallback errorCallback
+        );
+
+        void getFileInternal(
+            bool scoring,
+            std::string fileId,
+            std::string localDownloadPath,
+            OnSuccessCallback<ZBGetFileResponse> successCallback,
+            OnErrorCallback errorCallback
+        );
+
+        void deleteFileInternal(
+            bool scoring,
+            std::string fileId,
+            OnSuccessCallback<ZBDeleteFileResponse> successCallback,
             OnErrorCallback errorCallback
         );
     
@@ -110,13 +127,14 @@ class ZeroBounce {
 
         void getFile(
             std::string fileId,
-            OnSuccessCallback<ZBSendFileResponse> successCallback,
+            std::string localDownloadPath,
+            OnSuccessCallback<ZBGetFileResponse> successCallback,
             OnErrorCallback errorCallback
         );
 
         void deleteFile(
             std::string fileId,
-            OnSuccessCallback<ZBSendFileResponse> successCallback,
+            OnSuccessCallback<ZBDeleteFileResponse> successCallback,
             OnErrorCallback errorCallback
         );
 };

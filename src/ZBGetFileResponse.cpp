@@ -1,0 +1,25 @@
+#include <sstream>
+
+#include "ZeroBounce/utils.h"
+#include "ZeroBounce/ZBGetFileResponse.h"
+
+std::string ZBGetFileResponse::toString()
+{
+    std::stringstream stringStream;
+    stringStream << "ZBGetFileResponse{" <<
+                "success=" << success <<
+                ", message='" << message << '\'' <<
+                ", localFilePath='" << localFilePath << '\'' <<
+                '}';
+        
+    return stringStream.str();
+}
+
+ZBGetFileResponse ZBGetFileResponse::from_json(const json& j) {
+    ZBGetFileResponse r;
+
+    r.success = getOrDefault<bool>(j, "success", false);
+    r.message = getOrDefault<std::string>(j, "message", "");
+    
+    return r;
+}
