@@ -9,7 +9,7 @@ using json = nlohmann::json;
 
 class ZBCreditsResponse {
     public:
-        std::string credits;
+        int credits = -1;
 
         std::string toString();
 

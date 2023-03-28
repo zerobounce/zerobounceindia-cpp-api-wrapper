@@ -214,6 +214,20 @@ void ZeroBounce::scoringDeleteFile(
     deleteFileInternal(true, fileId, successCallback, errorCallback);
 }
 
+void ZeroBounce::getActivityData(
+    std::string email,
+    OnSuccessCallback<ZBActivityDataResponse> successCallback,
+    OnErrorCallback errorCallback
+) {
+    if (invalidApiKey(errorCallback)) return;
+
+    sendRequest(
+        apiBaseUrl + "/activity?api_key=" + apiKey + "&email=" + email,
+        successCallback,
+        errorCallback
+    );
+}
+
 template <typename T>
 void ZeroBounce::sendRequest(
     std::string urlPath,

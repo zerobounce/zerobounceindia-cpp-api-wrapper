@@ -15,6 +15,8 @@ std::string ZBCreditsResponse::toString()
 
 ZBCreditsResponse ZBCreditsResponse::from_json(const json& j) {
     ZBCreditsResponse r;
-    r.credits = getOrDefault<std::string>(j, "Credits", "");
+
+    r.credits = std::stoi(getOrDefault<std::string>(j, "Credits", "-1"));
+
     return r;
 }

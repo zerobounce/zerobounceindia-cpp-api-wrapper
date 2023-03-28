@@ -14,6 +14,7 @@
 #include "ZeroBounce/ZBFileStatusResponse.h"
 #include "ZeroBounce/ZBGetFileResponse.h"
 #include "ZeroBounce/ZBDeleteFileResponse.h"
+#include "ZeroBounce/ZBActivityDataResponse.h"
 
 template<typename T>
 using OnSuccessCallback = std::function<void(T response)>;
@@ -162,6 +163,12 @@ class ZeroBounce {
         void scoringDeleteFile(
             std::string fileId,
             OnSuccessCallback<ZBDeleteFileResponse> successCallback,
+            OnErrorCallback errorCallback
+        );
+
+        void getActivityData(
+            std::string email,
+            OnSuccessCallback<ZBActivityDataResponse> successCallback,
             OnErrorCallback errorCallback
         );
 };
