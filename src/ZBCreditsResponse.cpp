@@ -1,5 +1,6 @@
 #include <sstream>
 
+#include "ZeroBounce/utils.h"
 #include "ZeroBounce/ZBCreditsResponse.h"
 
 std::string ZBCreditsResponse::toString()
@@ -14,6 +15,6 @@ std::string ZBCreditsResponse::toString()
 
 ZBCreditsResponse ZBCreditsResponse::from_json(const json& j) {
     ZBCreditsResponse r;
-    r.credits = j.at("Credits").get<std::string>();
+    r.credits = getOrDefault<std::string>(j, "Credits", "");
     return r;
 }

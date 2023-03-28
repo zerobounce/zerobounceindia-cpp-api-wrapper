@@ -4,10 +4,10 @@
 #include "nlohmann/json.hpp"
 
 enum ZBValidateStatus {
+    Unknown,
     Valid,
     Invalid,
     CatchAll,
-    Unknown,
     Spamtrap,
     Abuse,
     DoNotMail
@@ -16,10 +16,10 @@ enum ZBValidateStatus {
 NLOHMANN_JSON_SERIALIZE_ENUM(
     ZBValidateStatus,
     {
+        {ZBValidateStatus::Unknown, "unknown"},
         {ZBValidateStatus::Valid, "valid"},
         {ZBValidateStatus::Invalid, "invalid"},
         {ZBValidateStatus::CatchAll, "catch-all"},
-        {ZBValidateStatus::Unknown, "unknown"},
         {ZBValidateStatus::Spamtrap, "spamtrap"},
         {ZBValidateStatus::Abuse, "abuse"},
         {ZBValidateStatus::DoNotMail, "do_not_mail"}

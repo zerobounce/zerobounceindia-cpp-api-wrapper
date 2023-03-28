@@ -1,3 +1,6 @@
+#include <sstream>
+
+#include "ZeroBounce/utils.h"
 #include "ZeroBounce/ZBValidateBatchResponse.h"
 
 std::string ZBValidateError::toString()
@@ -12,8 +15,8 @@ std::string ZBValidateError::toString()
 ZBValidateError ZBValidateError::from_json(const json& j) {
     ZBValidateError r;
 
-    r.error = j.at("error").get<std::string>();
-    r.emailAddress = j.at("email_address").get<std::string>();
+    r.error = getOrDefault<std::string>(j, "error", "");
+    r.emailAddress = getOrDefault<std::string>(j, "email_address", "");
     
     return r;
 }

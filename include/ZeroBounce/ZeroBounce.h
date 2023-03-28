@@ -10,6 +10,23 @@
 #include "ZeroBounce/ZBGetApiUsageResponse.h"
 #include "ZeroBounce/ZBValidateResponse.h"
 #include "ZeroBounce/ZBValidateBatchResponse.h"
+#include "ZeroBounce/ZBSendFileResponse.h"
+#include "ZeroBounce/ZBFileStatusResponse.h"
+
+template<typename T>
+using OnSuccessCallback = std::function<void(T response)>;
+
+using OnErrorCallback = std::function<void(ZBErrorResponse errorResponse)>;
+
+struct SendFileOptions {
+    std::string returnUrl = "";
+    int firstNameColumn = 0;
+    int lastNameColumn = 0;
+    int genderColumn = 0;
+    int ipAddressColumn = 0;
+    bool hasHeaderRow = true;
+    bool removeDuplicate = true;
+};
 
 class ZeroBounce {
     private:
@@ -18,20 +35,8 @@ class ZeroBounce {
         const std::string apiBaseUrl = "https://api.zerobounce.net/v2";
         const std::string bulkApiBaseUrl = "https://bulkapi.zerobounce.net/v2";
         const std::string bulkApiScoringBaseUrl = "https://bulkapi.zerobounce.net/v2/scoring";
-    
-    public:
-        template<typename T>
-        using OnSuccessCallback = std::function<void(T response)>;
 
-        using OnErrorCallback = std::function<void(ZBErrorResponse errorResponse)>;
-
-        ZeroBounce();
-        ZeroBounce(const ZeroBounce& obj) = delete;
-
-        static ZeroBounce* getInstance();
-        void initialize(std::string apiKey);
         bool invalidApiKey(OnErrorCallback errorCallback);
-
 
         template <typename T>
         void sendRequest(
@@ -39,6 +44,30 @@ class ZeroBounce {
             OnSuccessCallback<T> successCallback,
             OnErrorCallback errorCallback
         );
+
+        void sendFileInternal(
+            bool scoring,
+            std::string filePath,
+            int emailAddressColumnIndex,
+            SendFileOptions options,
+            OnSuccessCallback<ZBSendFileResponse> successCallback,
+            OnErrorCallback errorCallback
+        );
+
+        void fileStatusInternal(
+            bool scoring,
+            std::string fileId,
+            OnSuccessCallback<ZBFileStatusResponse> successCallback,
+            OnErrorCallback errorCallback
+        );
+    
+    public:
+        ZeroBounce();
+        ZeroBounce(const ZeroBounce& obj) = delete;
+
+        static ZeroBounce* getInstance();
+
+        void initialize(std::string apiKey);
 
         void getCredits(
             OnSuccessCallback<ZBCreditsResponse> successCallback,
@@ -65,17 +94,31 @@ class ZeroBounce {
             OnErrorCallback errorCallback
         );
 
-};
-
-class FileRequestHandler {
-    public:
         void sendFile(
-            std::string file, int emailAddressColumn=1, int firstNameColumn=2, int lastNameColumn=3, int genderColumn=4,
-            bool hasHeader=false
+            std::string filePath,
+            int emailAddressColumnIndex,
+            SendFileOptions options,
+            OnSuccessCallback<ZBSendFileResponse> successCallback,
+            OnErrorCallback errorCallback
         );
-        void fileStatus(std::string fileId);
-        void getFile(std::string fileId);
-        void deleteFile(std::string fileId);
+
+        void fileStatus(
+            std::string fileId,
+            OnSuccessCallback<ZBFileStatusResponse> successCallback,
+            OnErrorCallback errorCallback
+        );
+
+        void getFile(
+            std::string fileId,
+            OnSuccessCallback<ZBSendFileResponse> successCallback,
+            OnErrorCallback errorCallback
+        );
+
+        void deleteFile(
+            std::string fileId,
+            OnSuccessCallback<ZBSendFileResponse> successCallback,
+            OnErrorCallback errorCallback
+        );
 };
 
 #endif

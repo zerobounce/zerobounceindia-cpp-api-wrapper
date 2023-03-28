@@ -1,5 +1,6 @@
 #include <sstream>
 
+#include "ZeroBounce/utils.h"
 #include "ZeroBounce/ZBValidateResponse.h"
 
 std::string ZBValidateResponse::toString(bool isBatch)
@@ -42,46 +43,31 @@ std::string ZBValidateResponse::toString(bool isBatch)
 ZBValidateResponse ZBValidateResponse::from_json(const json& j) {
     ZBValidateResponse r;
 
-    if (j.find("error") != j.end()) {
-        j.at("error").get_to(r.error);
-    } else {
-        r.address = j.at("address").get<std::string>();
-        r.status = j.at("status").get<ZBValidateStatus>();
-        r.subStatus = j.at("sub_status").get<ZBValidateSubStatus>();
-        r.freeEmail = j.at("free_email").get<bool>();
-        r.didYouMean = j.at("did_you_mean").is_null() ?
-            "" : j.at("did_you_mean").get<std::string>();
-        r.account = j.at("account").is_null() ?
-            "" : j.at("account").get<std::string>();
-        r.domain = j.at("domain").is_null() ?
-            "" : j.at("domain").get<std::string>();
-        r.domainAgeDays = j.at("domain_age_days").is_null() ?
-            "" : j.at("domain_age_days").get<std::string>();
-        r.smtpProvider = j.at("smtp_provider").is_null() ?
-            "" : j.at("smtp_provider").get<std::string>();
-        
-        bool mxFound;
-        std::istringstream ss(j.at("mx_found").get<std::string>());
-        ss >> std::boolalpha >> mxFound;
-        r.mxFound = mxFound;
+    r.address = getOrDefault<std::string>(j, "address", "");
+    r.status = getOrDefault<ZBValidateStatus>(j, "status", ZBValidateStatus::Unknown);
+    r.subStatus = getOrDefault<ZBValidateSubStatus>(j, "sub_status", ZBValidateSubStatus::None);
+    r.freeEmail = getOrDefault<bool>(j, "free_email", false);
+    r.didYouMean = getOrDefault<std::string>(j, "did_you_mean", "");
+    r.account = getOrDefault<std::string>(j, "account", "");
+    r.domain = getOrDefault<std::string>(j, "domain", "");
+    r.domainAgeDays = getOrDefault<std::string>(j, "domain_age_days", "");
+    r.smtpProvider = getOrDefault<std::string>(j, "smtp_provider", "");
+    
+    bool mxFound;
+    std::istringstream ss(getOrDefault<std::string>(j, "mx_found", "false"));
+    ss >> std::boolalpha >> mxFound;
+    r.mxFound = mxFound;
 
-        r.mxRecord = j.at("mx_record").get<std::string>();
-        r.firstName = j.at("firstname").is_null() ?
-            "" : j.at("firstname").get<std::string>();
-        r.lastName = j.at("lastname").is_null() ?
-            "" : j.at("lastname").get<std::string>();
-        r.gender = j.at("gender").is_null() ?
-            "" : j.at("gender").get<std::string>();
-        r.country = j.at("country").is_null() ?
-            "" : j.at("country").get<std::string>();
-        r.region = j.at("region").is_null() ?
-            "" : j.at("region").get<std::string>();
-        r.city = j.at("city").is_null() ?
-            "" : j.at("city").get<std::string>();
-        r.zipCode = j.at("zipcode").is_null() ?
-            "" : j.at("zipcode").get<std::string>();
-        r.processedAt = j.at("processed_at").get<std::string>();
-    }
+    r.mxRecord = getOrDefault<std::string>(j, "mx_record", "");
+    r.firstName = getOrDefault<std::string>(j, "firstname", "");
+    r.lastName = getOrDefault<std::string>(j, "lastname", "");
+    r.gender = getOrDefault<std::string>(j, "gender", "");
+    r.country = getOrDefault<std::string>(j, "country", "");
+    r.region = getOrDefault<std::string>(j, "region", "");
+    r.city = getOrDefault<std::string>(j, "city", "");
+    r.zipCode = getOrDefault<std::string>(j, "zipcode", "");
+    r.processedAt = getOrDefault<std::string>(j, "processed_at", "");
+    r.error = getOrDefault<std::string>(j, "error", "");
     
     return r;
 }
