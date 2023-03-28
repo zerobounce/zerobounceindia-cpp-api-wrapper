@@ -137,6 +137,33 @@ class ZeroBounce {
             OnSuccessCallback<ZBDeleteFileResponse> successCallback,
             OnErrorCallback errorCallback
         );
+
+        void scoringSendFile(
+            std::string filePath,
+            int emailAddressColumnIndex,
+            SendFileOptions options,
+            OnSuccessCallback<ZBSendFileResponse> successCallback,
+            OnErrorCallback errorCallback
+        );
+
+        void scoringFileStatus(
+            std::string fileId,
+            OnSuccessCallback<ZBFileStatusResponse> successCallback,
+            OnErrorCallback errorCallback
+        );
+
+        void scoringGetFile(
+            std::string fileId,
+            std::string localDownloadPath,
+            OnSuccessCallback<ZBGetFileResponse> successCallback,
+            OnErrorCallback errorCallback
+        );
+
+        void scoringDeleteFile(
+            std::string fileId,
+            OnSuccessCallback<ZBDeleteFileResponse> successCallback,
+            OnErrorCallback errorCallback
+        );
 };
 
 #endif

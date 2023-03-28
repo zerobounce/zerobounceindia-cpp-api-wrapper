@@ -179,6 +179,41 @@ void ZeroBounce::deleteFile(
     deleteFileInternal(false, fileId, successCallback, errorCallback);
 }
 
+void ZeroBounce::scoringSendFile(
+    std::string filePath,
+    int emailAddressColumnIndex,
+    SendFileOptions options,
+    OnSuccessCallback<ZBSendFileResponse> successCallback,
+    OnErrorCallback errorCallback
+) {
+    sendFileInternal(true, filePath, emailAddressColumnIndex, options, successCallback, errorCallback);
+}
+
+void ZeroBounce::scoringFileStatus(
+    std::string fileId,
+    OnSuccessCallback<ZBFileStatusResponse> successCallback,
+    OnErrorCallback errorCallback
+) {
+    fileStatusInternal(true, fileId, successCallback, errorCallback);
+}
+
+void ZeroBounce::scoringGetFile(
+    std::string fileId,
+    std::string localDownloadPath,
+    OnSuccessCallback<ZBGetFileResponse> successCallback,
+    OnErrorCallback errorCallback
+) {
+    getFileInternal(true, fileId, localDownloadPath, successCallback, errorCallback);
+}
+
+void ZeroBounce::scoringDeleteFile(
+    std::string fileId,
+    OnSuccessCallback<ZBDeleteFileResponse> successCallback,
+    OnErrorCallback errorCallback
+) {
+    deleteFileInternal(true, fileId, successCallback, errorCallback);
+}
+
 template <typename T>
 void ZeroBounce::sendRequest(
     std::string urlPath,
