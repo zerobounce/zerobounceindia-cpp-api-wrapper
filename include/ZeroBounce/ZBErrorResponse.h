@@ -8,13 +8,15 @@
 
 class ZBErrorResponse {
     public:
-        std::optional<bool> success;
+        bool success = false;
         std::vector<std::string> errors;
 
         ZBErrorResponse();
-        ZBErrorResponse(std::optional<bool> success, const std::vector<std::string>& errors);
+        ZBErrorResponse(bool success, std::vector<std::string> errors);
 
-        static ZBErrorResponse parseError(const std::string& error);
+        std::string toString();
+
+        static ZBErrorResponse parseError(std::string error);
 };
 
 #endif
