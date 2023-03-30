@@ -11,14 +11,30 @@ target_include_directories(${PROJECT_NAME} PUBLIC include)
 include(FetchContent)
 
 # Download and build libcpr
-FetchContent_Declare(cpr GIT_REPOSITORY https://github.com/libcpr/cpr.git
-                         GIT_TAG 0817715923c9705e68994eb52ef9df3f6845beba) # The commit hash for 1.10.x. Replace with the latest from: https://github.com/libcpr/cpr/releases
+FetchContent_Declare(
+    cpr 
+    GIT_REPOSITORY https://github.com/libcpr/cpr.git
+    GIT_TAG 0817715923c9705e68994eb52ef9df3f6845beba
+) # The commit hash for 1.10.x. Replace with the latest from: https://github.com/libcpr/cpr/releases
 # Download and build nlohmann_json
-FetchContent_Declare(nlohmann_json URL https://github.com/nlohmann/json/releases/download/v3.11.2/json.tar.xz)
+FetchContent_Declare(
+    nlohmann_json 
+    URL https://github.com/nlohmann/json/releases/download/v3.11.2/json.tar.xz
+)
+# Download and build googletest
+FetchContent_Declare(
+    googletest
+    GIT_REPOSITORY https://github.com/google/googletest.git
+    GIT_TAG        v1.13.0
+)
 
-FetchContent_MakeAvailable(cpr nlohmann_json)
+FetchContent_MakeAvailable(cpr nlohmann_json googletest)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC cpr::cpr nlohmann_json::nlohmann_json)
 
 add_executable(zb_test main.cpp)
 target_link_libraries(zb_test PRIVATE ${PROJECT_NAME})
+
+add_executable(tests test/ZeroBounceTest.cpp)
+target_include_directories(tests PRIVATE ${gtest_SOURCE_DIR}/include)
+target_link_libraries(tests PRIVATE gtest gmock gtest_main ${PROJECT_NAME})
