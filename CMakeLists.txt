@@ -21,14 +21,14 @@ FetchContent_Declare(
     nlohmann_json 
     URL https://github.com/nlohmann/json/releases/download/v3.11.2/json.tar.xz
 )
-# Download and build googletest
+# Download and build cpputest
 FetchContent_Declare(
-    googletest
-    GIT_REPOSITORY https://github.com/google/googletest.git
-    GIT_TAG v1.13.0
+    CppUTest
+    GIT_REPOSITORY https://github.com/cpputest/cpputest.git
+    GIT_TAG v4.0
 )
 
-FetchContent_MakeAvailable(libcurl nlohmann_json googletest)
+FetchContent_MakeAvailable(libcurl nlohmann_json CppUTest)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${libcurl_SOURCE_DIR}/include)
 link_directories(${libcurl_BINARY_DIR}/lib)
@@ -38,6 +38,5 @@ target_link_libraries(${PROJECT_NAME} PUBLIC libcurl nlohmann_json::nlohmann_jso
 add_executable(zb_test main.cpp)
 target_link_libraries(zb_test PRIVATE ${PROJECT_NAME})
 
-# add_executable(tests test/ZeroBounceTest.cpp)
-# target_include_directories(tests PRIVATE ${gtest_SOURCE_DIR}/include)
-# target_link_libraries(tests PRIVATE gtest gmock gtest_main ${PROJECT_NAME})
+add_executable(tests test/ZeroBounceTest.cpp)
+target_link_libraries(tests PRIVATE CppUTest CppUTestExt ${PROJECT_NAME})
