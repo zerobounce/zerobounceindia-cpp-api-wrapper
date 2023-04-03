@@ -16,8 +16,6 @@
 #include "ZeroBounce/ZBDeleteFileResponse.h"
 #include "ZeroBounce/ZBActivityDataResponse.h"
 
-#include <cpr/cpr.h>
-
 template<typename T>
 using OnSuccessCallback = std::function<void(T response)>;
 
@@ -33,22 +31,7 @@ struct SendFileOptions {
     bool removeDuplicate = true;
 };
 
-class RequestHandler {
-public:
-    template <typename... Ts>
-    cpr::Response Get(Ts&&... ts) {
-        return cpr::Get(std::forward<Ts>(ts)...);
-    };
-
-    template <typename... Ts>
-    cpr::Response Post(Ts&&... ts) {
-        return cpr::Post(std::forward<Ts>(ts)...);
-    };
-};
-
 class ZeroBounce {
-    protected:
-        RequestHandler requestHandler;
     private:
         static ZeroBounce* instance;
         std::string apiKey;
@@ -57,6 +40,8 @@ class ZeroBounce {
         const std::string bulkApiScoringBaseUrl = "https://bulkapi.zerobounce.net/v2/scoring";
 
         bool invalidApiKey(OnErrorCallback errorCallback);
+
+        static size_t writeCallback(void *contents, size_t size, size_t nmemb, void *userp);
 
         template <typename T>
         void sendRequest(
@@ -98,6 +83,7 @@ class ZeroBounce {
     
     public:
         ZeroBounce();
+        ~ZeroBounce();
         ZeroBounce(const ZeroBounce& obj) = delete;
 
         static ZeroBounce* getInstance();

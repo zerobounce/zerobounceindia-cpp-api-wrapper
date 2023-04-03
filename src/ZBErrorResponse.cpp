@@ -51,8 +51,12 @@ ZBErrorResponse ZBErrorResponse::parseError(std::string error) {
                     errors.push_back(entry.value().get<std::string>());
                 }
             } else {
-                if (entry.key() == "success" && entry.value().is_boolean()) {
-                    response.success = entry.value().get<bool>();
+                if (entry.key() == "success") {
+                    if (entry.value().is_boolean()) {
+                        response.success = entry.value().get<bool>();
+                    } else if (entry.value().is_string()) {
+                        response.success = entry.value().get<std::string>() == "True";
+                    }
                 } else if (entry.value().is_array()) {
                     std::vector<std::string> values = entry.value();
                     otherMessages.insert(otherMessages.end(), values.begin(), values.end());

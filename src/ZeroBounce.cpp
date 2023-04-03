@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iostream>
 
+#include <curl/curl.h>
 #include <nlohmann/json.hpp>
 
 #include "ZeroBounce/ZeroBounce.h"
@@ -12,6 +13,11 @@ namespace fs = std::filesystem;
 using json = nlohmann::json;
 
 ZeroBounce::ZeroBounce() {
+    curl_global_init(CURL_GLOBAL_ALL);
+}
+
+ZeroBounce::~ZeroBounce() {
+    curl_global_cleanup();
 }
 
 ZeroBounce* ZeroBounce::instance = nullptr;
@@ -99,6 +105,8 @@ void ZeroBounce::validateBatch(
     if (invalidApiKey(errorCallback)) return;
 
     try {
+        std::string urlPath = bulkApiBaseUrl + "/validatebatch";
+
         json payload;
         payload["api_key"] = apiKey;
 
@@ -115,28 +123,45 @@ void ZeroBounce::validateBatch(
             payload["email_batch"].push_back(emailObj);
         }
 
-        cpr::Response reqResponse = requestHandler.Post(
-            cpr::Url{bulkApiBaseUrl + "/validatebatch"},
-            cpr::Header{
-                {"Accept", "application/json"},
-                {"Content-Type", "application/json"}
-            },
-            cpr::Body{payload.dump()}
-        );
-        
-        std::string rsp = reqResponse.text;
+        CURL* curl = curl_easy_init();
+        if (!curl) {
+            throw std::runtime_error("Failed to initialize libcurl");
+        }
 
-        if (reqResponse.status_code > 299) {
+        curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_easy_setopt(curl, CURLOPT_URL, urlPath.c_str());
+
+        struct curl_slist* headers = nullptr;
+        headers = curl_slist_append(headers, "Accept: application/json");
+        headers = curl_slist_append(headers, "Content-Type: application/json");
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+        curl_easy_setopt(curl, CURLOPT_COPYPOSTFIELDS, payload.dump().c_str());
+
+        std::string responseData;
+
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, ZeroBounce::writeCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &responseData);
+
+        CURLcode res = curl_easy_perform(curl);
+
+        long httpCode = 0;
+        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
+
+        if (httpCode > 299) {
             if (errorCallback) {
-                ZBErrorResponse errorResponse = ZBErrorResponse::parseError(rsp);
+                ZBErrorResponse errorResponse = ZBErrorResponse::parseError(responseData);
                 errorCallback(errorResponse);
             }
         } else {
             if (successCallback) {
-                ZBValidateBatchResponse response = ZBValidateBatchResponse::from_json(json::parse(rsp));
+                ZBValidateBatchResponse response = ZBValidateBatchResponse::from_json(json::parse(responseData));
                 successCallback(response);
             }
         }
+
+        curl_easy_cleanup(curl);
+        curl_slist_free_all(headers);
     } catch (std::exception e) {
         ZBErrorResponse errorResponse = ZBErrorResponse::parseError(e.what());
         errorCallback(errorResponse);
@@ -227,6 +252,11 @@ void ZeroBounce::getActivityData(
     );
 }
 
+size_t ZeroBounce::writeCallback(void *contents, size_t size, size_t nmemb, void *userp) {
+    ((std::string*)userp)->append((char*)contents, size * nmemb);
+    return size * nmemb;
+}
+
 template <typename T>
 void ZeroBounce::sendRequest(
     std::string urlPath,
@@ -234,24 +264,42 @@ void ZeroBounce::sendRequest(
     OnErrorCallback errorCallback
 ) {
     try {
-        cpr::Response reqResponse = requestHandler.Get(
-            cpr::Url{urlPath},
-            cpr::Header{{"Accept", "application/json"}}
-        );
-        
-        std::string rsp = reqResponse.text;
+        CURL* curl = curl_easy_init();
+        if (!curl) {
+            throw std::runtime_error("Failed to initialize libcurl");
+        }
 
-        if (reqResponse.status_code > 299) {
+        curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "GET");
+        curl_easy_setopt(curl, CURLOPT_URL, urlPath.c_str());
+
+        struct curl_slist* headers = nullptr;
+        headers = curl_slist_append(headers, "Accept: application/json");
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+        std::string responseData;
+
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, ZeroBounce::writeCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &responseData);
+
+        CURLcode res = curl_easy_perform(curl);
+
+        long httpCode = 0;
+        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
+
+        if (httpCode > 299) {
             if (errorCallback) {
-                ZBErrorResponse errorResponse = ZBErrorResponse::parseError(rsp);
+                ZBErrorResponse errorResponse = ZBErrorResponse::parseError(responseData);
                 errorCallback(errorResponse);
             }
         } else {
             if (successCallback) {
-                T response = T::from_json(json::parse(rsp));
+                T response = T::from_json(json::parse(responseData));
                 successCallback(response);
             }
         }
+
+        curl_easy_cleanup(curl);
+        curl_slist_free_all(headers);
     } catch (std::exception e) {
         ZBErrorResponse errorResponse = ZBErrorResponse::parseError(e.what());
         errorCallback(errorResponse);
@@ -271,53 +319,96 @@ void ZeroBounce::sendFileInternal(
     try {
         std::string urlPath = (scoring ? bulkApiScoringBaseUrl : bulkApiBaseUrl) + "/sendFile";
 
-        cpr::Multipart multipart{
-            {"api_key", apiKey},
-            {"file", cpr::File{filePath}},
-            {"email_address_column", emailAddressColumnIndex}
-        };
+        CURL* curl = curl_easy_init();
+        if (!curl) {
+            throw std::runtime_error("Failed to initialize libcurl");
+        }
+
+        curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_easy_setopt(curl, CURLOPT_URL, urlPath.c_str());
+
+        struct curl_slist* headers = nullptr;
+        headers = curl_slist_append(headers, "Content-Type: multipart/form-data");
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+        curl_mime *multipart = curl_mime_init(curl);
+
+        curl_mimepart *part = curl_mime_addpart(multipart);
+        curl_mime_name(part, "api_key");
+        curl_mime_data(part, apiKey.c_str(), CURL_ZERO_TERMINATED);
+
+        part = curl_mime_addpart(multipart);
+        curl_mime_name(part, "file");
+        curl_mime_filedata(part, filePath.c_str());
+
+        part = curl_mime_addpart(multipart);
+        curl_mime_name(part, "email_address_column");
+        curl_mime_data(part, std::to_string(emailAddressColumnIndex).c_str(), CURL_ZERO_TERMINATED);
 
         if (!scoring) {
             if (options.firstNameColumn > 0) {
-                multipart.parts.emplace_back(cpr::Part{"first_name_column", options.firstNameColumn});
+                part = curl_mime_addpart(multipart);
+                curl_mime_name(part, "first_name_column");
+                curl_mime_data(part, std::to_string(options.firstNameColumn).c_str(), CURL_ZERO_TERMINATED);
             }
             if (options.lastNameColumn > 0) {
-                multipart.parts.emplace_back(cpr::Part{"last_name_column", options.lastNameColumn});
+                part = curl_mime_addpart(multipart);
+                curl_mime_name(part, "last_name_column");
+                curl_mime_data(part, std::to_string(options.lastNameColumn).c_str(), CURL_ZERO_TERMINATED);
             }
             if (options.genderColumn > 0) {
-                multipart.parts.emplace_back(cpr::Part{"gender_column", options.genderColumn});
+                part = curl_mime_addpart(multipart);
+                curl_mime_name(part, "gender_column");
+                curl_mime_data(part, std::to_string(options.genderColumn).c_str(), CURL_ZERO_TERMINATED);
             }
             if (options.ipAddressColumn > 0) {
-                multipart.parts.emplace_back(cpr::Part{"ip_address_column", options.ipAddressColumn});
+                part = curl_mime_addpart(multipart);
+                curl_mime_name(part, "ip_address_column");
+                curl_mime_data(part, std::to_string(options.ipAddressColumn).c_str(), CURL_ZERO_TERMINATED);
             }
         }
 
         if (!options.returnUrl.empty()) {
-                multipart.parts.emplace_back(cpr::Part{"return_url", options.returnUrl});
+            part = curl_mime_addpart(multipart);
+            curl_mime_name(part, "return_url");
+            curl_mime_data(part, options.returnUrl.c_str(), CURL_ZERO_TERMINATED);
         }
-        
-        multipart.parts.emplace_back(cpr::Part{"has_header_row", options.hasHeaderRow});
-        multipart.parts.emplace_back(cpr::Part{"remove_duplicate", options.removeDuplicate});
 
-        cpr::Response reqResponse = requestHandler.Post(
-            cpr::Url{urlPath},
-            cpr::Header{{"Content-Type", "multipart/form-data"}},
-            multipart
-        );
+        part = curl_mime_addpart(multipart);
+        curl_mime_name(part, "has_header_row");
+        curl_mime_data(part, options.hasHeaderRow ? "true" : "false", CURL_ZERO_TERMINATED);
 
-        std::string rsp = reqResponse.text;
+        part = curl_mime_addpart(multipart);
+        curl_mime_name(part, "remove_duplicate");
+        curl_mime_data(part, options.removeDuplicate ? "true" : "false", CURL_ZERO_TERMINATED);
 
-        if (reqResponse.status_code > 299) {
+        curl_easy_setopt(curl, CURLOPT_MIMEPOST, multipart);
+
+        std::string responseData;
+
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, ZeroBounce::writeCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &responseData);
+
+        CURLcode res = curl_easy_perform(curl);
+
+        long httpCode = 0;
+        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
+
+        if (httpCode > 299) {
             if (errorCallback) {
-                ZBErrorResponse errorResponse = ZBErrorResponse::parseError(rsp);
+                ZBErrorResponse errorResponse = ZBErrorResponse::parseError(responseData);
                 errorCallback(errorResponse);
             }
         } else {
             if (successCallback) {
-                ZBSendFileResponse response = ZBSendFileResponse::from_json(json::parse(rsp));
+                ZBSendFileResponse response = ZBSendFileResponse::from_json(json::parse(responseData));
                 successCallback(response);
             }
         }
+
+        curl_easy_cleanup(curl);
+        curl_slist_free_all(headers);
+        curl_mime_free(multipart);
     } catch (std::exception e) {
         ZBErrorResponse errorResponse = ZBErrorResponse::parseError(e.what());
         errorCallback(errorResponse);
@@ -353,20 +444,34 @@ void ZeroBounce::getFileInternal(
         std::string urlPath = (scoring ? bulkApiScoringBaseUrl : bulkApiBaseUrl)
             + "/getFile?api_key=" + apiKey + "&file_id=" + fileId;
         
-        cpr::Response reqResponse = requestHandler.Get(cpr::Url{urlPath});
+        CURL* curl = curl_easy_init();
+        if (!curl) {
+            throw std::runtime_error("Failed to initialize libcurl");
+        }
 
-        std::string contentType = reqResponse.header["Content-Type"];
+        curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "GET");
+        curl_easy_setopt(curl, CURLOPT_URL, urlPath.c_str());
 
-        std::string rsp = reqResponse.text;
+        std::string responseData;
 
-        if (reqResponse.status_code > 299) {
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, ZeroBounce::writeCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &responseData);
+
+        CURLcode res = curl_easy_perform(curl);
+
+        long httpCode = 0;
+        struct curl_header *contentTypeHeader;
+        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
+        curl_easy_header(curl, "Content-Type", 0, CURLH_HEADER, -1, &contentTypeHeader);
+
+        if (httpCode > 299) {
             if (errorCallback) {
-                ZBErrorResponse errorResponse = ZBErrorResponse::parseError(rsp);
+                ZBErrorResponse errorResponse = ZBErrorResponse::parseError(responseData);
                 errorCallback(errorResponse);
             }
         } else {
             if (successCallback) {
-                if (contentType != "application/json") {
+                if (strcmp(contentTypeHeader->value, "application/json") != 0) {
                     fs::path filePath(localDownloadPath);
 
                     if (fs::is_directory(filePath)) {
@@ -379,7 +484,7 @@ void ZeroBounce::getFileInternal(
 
                     std::ofstream fileStream(filePath, std::ofstream::out | std::ofstream::binary);
 
-                    fileStream.write(rsp.c_str(), rsp.size());
+                    fileStream.write(responseData.c_str(), responseData.size());
                     fileStream.close();
 
                     ZBGetFileResponse response;
@@ -387,11 +492,13 @@ void ZeroBounce::getFileInternal(
                     response.localFilePath = localDownloadPath;
                     successCallback(response);
                 } else {
-                    ZBGetFileResponse response = ZBGetFileResponse::from_json(json::parse(rsp));
+                    ZBGetFileResponse response = ZBGetFileResponse::from_json(json::parse(responseData));
                     successCallback(response);
                 }
             }
         }
+
+        curl_easy_cleanup(curl);
     } catch (std::exception e) {
         ZBErrorResponse errorResponse = ZBErrorResponse::parseError(e.what());
         errorCallback(errorResponse);
