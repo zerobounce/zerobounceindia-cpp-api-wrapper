@@ -115,7 +115,7 @@ void ZeroBounce::validateBatch(
             payload["email_batch"].push_back(emailObj);
         }
 
-        cpr::Response reqResponse = requestHandler.Post(
+        cpr::Response reqResponse = requestHandler->Post(
             cpr::Url{bulkApiBaseUrl + "/validatebatch"},
             cpr::Header{
                 {"Accept", "application/json"},
@@ -234,7 +234,7 @@ void ZeroBounce::sendRequest(
     OnErrorCallback errorCallback
 ) {
     try {
-        cpr::Response reqResponse = requestHandler.Get(
+        cpr::Response reqResponse = requestHandler->Get(
             cpr::Url{urlPath},
             cpr::Header{{"Accept", "application/json"}}
         );
@@ -299,7 +299,7 @@ void ZeroBounce::sendFileInternal(
         multipart.parts.emplace_back(cpr::Part{"has_header_row", options.hasHeaderRow});
         multipart.parts.emplace_back(cpr::Part{"remove_duplicate", options.removeDuplicate});
 
-        cpr::Response reqResponse = requestHandler.Post(
+        cpr::Response reqResponse = requestHandler->Post(
             cpr::Url{urlPath},
             cpr::Header{{"Content-Type", "multipart/form-data"}},
             multipart
@@ -353,7 +353,7 @@ void ZeroBounce::getFileInternal(
         std::string urlPath = (scoring ? bulkApiScoringBaseUrl : bulkApiBaseUrl)
             + "/getFile?api_key=" + apiKey + "&file_id=" + fileId;
         
-        cpr::Response reqResponse = requestHandler.Get(cpr::Url{urlPath});
+        cpr::Response reqResponse = requestHandler->Get(cpr::Url{urlPath});
 
         std::string contentType = reqResponse.header["Content-Type"];
 

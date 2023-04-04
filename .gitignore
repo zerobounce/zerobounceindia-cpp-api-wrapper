@@ -35,4 +35,5 @@
 # Other
 .vscode
 build
+downloads
 main.cpp

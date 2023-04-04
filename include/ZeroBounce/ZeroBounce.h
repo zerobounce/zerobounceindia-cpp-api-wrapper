@@ -34,21 +34,21 @@ struct SendFileOptions {
 };
 
 class RequestHandler {
-public:
-    template <typename... Ts>
-    cpr::Response Get(Ts&&... ts) {
-        return cpr::Get(std::forward<Ts>(ts)...);
-    };
+    public:
+        template <typename... Ts>
+        cpr::Response Get(Ts&&... ts) {
+            return cpr::Get(std::forward<Ts>(ts)...);
+        };
 
-    template <typename... Ts>
-    cpr::Response Post(Ts&&... ts) {
-        return cpr::Post(std::forward<Ts>(ts)...);
-    };
+        template <typename... Ts>
+        cpr::Response Post(Ts&&... ts) {
+            return cpr::Post(std::forward<Ts>(ts)...);
+        };
 };
 
 class ZeroBounce {
     protected:
-        RequestHandler requestHandler;
+        RequestHandler* requestHandler;
     private:
         static ZeroBounce* instance;
         std::string apiKey;
