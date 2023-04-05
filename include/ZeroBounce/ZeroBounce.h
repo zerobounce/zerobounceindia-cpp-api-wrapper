@@ -70,7 +70,7 @@ class RequestHandler : public BaseRequestHandler {
 
 class ZeroBounce {
     protected:
-        BaseRequestHandler* requestHandler;
+        BaseRequestHandler* requestHandler = new RequestHandler();
     private:
         static ZeroBounce* instance;
         std::string apiKey;

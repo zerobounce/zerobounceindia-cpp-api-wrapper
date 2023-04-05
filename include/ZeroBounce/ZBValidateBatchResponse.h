@@ -26,6 +26,8 @@ class ZBValidateError {
         std::string toString();
 
         static ZBValidateError from_json(const json& j);
+
+        bool operator==(const ZBValidateError& other) const;
 };
 
 class ZBValidateBatchResponse {
@@ -36,6 +38,8 @@ class ZBValidateBatchResponse {
         std::string toString();
 
         static ZBValidateBatchResponse from_json(const json& j);
+
+        bool operator==(const ZBValidateBatchResponse& other) const;
 };
 
 #endif

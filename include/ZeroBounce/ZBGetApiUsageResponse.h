@@ -48,6 +48,8 @@ class ZBGetApiUsageResponse {
         std::string toString();
 
         static ZBGetApiUsageResponse from_json(const json& j);
+
+        bool operator==(const ZBGetApiUsageResponse& other) const;
 };
 
 #endif

@@ -18,6 +18,8 @@ class ZBSendFileResponse {
         std::string toString();
 
         static ZBSendFileResponse from_json(const json& j);
+
+        bool operator==(const ZBSendFileResponse& other) const;
 };
 
 #endif

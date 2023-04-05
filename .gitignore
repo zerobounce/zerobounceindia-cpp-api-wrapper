@@ -36,4 +36,5 @@
 .vscode
 build
 downloads
+test/downloads
 main.cpp

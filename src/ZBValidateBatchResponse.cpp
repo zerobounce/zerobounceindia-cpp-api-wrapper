@@ -21,6 +21,11 @@ ZBValidateError ZBValidateError::from_json(const json& j) {
     return r;
 }
 
+bool ZBValidateError::operator==(const ZBValidateError& other) const {
+    return error == other.error &&
+        emailAddress == other.emailAddress;
+}
+
 std::string ZBValidateBatchResponse::toString()
 {
     std::stringstream stringStream;
@@ -61,4 +66,9 @@ ZBValidateBatchResponse ZBValidateBatchResponse::from_json(const json& j) {
     }
     
     return r;
+}
+
+bool ZBValidateBatchResponse::operator==(const ZBValidateBatchResponse& other) const {
+    return emailBatch == other.emailBatch &&
+        errors == other.errors;
 }

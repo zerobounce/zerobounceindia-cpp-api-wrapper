@@ -71,3 +71,26 @@ ZBValidateResponse ZBValidateResponse::from_json(const json& j) {
     
     return r;
 }
+
+bool ZBValidateResponse::operator==(const ZBValidateResponse& other) const {
+    return address == other.address &&
+        status == other.status;
+        subStatus == other.subStatus;
+        account == other.account &&
+        domain == other.domain &&
+        didYouMean == other.didYouMean &&
+        domainAgeDays == other.domainAgeDays &&
+        freeEmail == other.freeEmail &&
+        mxFound == other.mxFound &&
+        mxRecord == other.mxRecord &&
+        smtpProvider == other.smtpProvider &&
+        firstName == other.firstName &&
+        lastName == other.lastName &&
+        gender == other.gender &&
+        city == other.city &&
+        region == other.region &&
+        zipCode == other.zipCode &&
+        country == other.country &&
+        processedAt == other.processedAt &&
+        error == other.error;
+}

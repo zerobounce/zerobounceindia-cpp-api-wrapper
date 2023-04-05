@@ -41,3 +41,10 @@ ZBSendFileResponse ZBSendFileResponse::from_json(const json& j) {
     
     return r;
 }
+
+bool ZBSendFileResponse::operator==(const ZBSendFileResponse& other) const {
+    return success == other.success &&
+        message == other.message &&
+        fileName == other.fileName &&
+        fileId == other.fileId;
+}

@@ -36,3 +36,15 @@ ZBFileStatusResponse ZBFileStatusResponse::from_json(const json& j) {
     
     return r;
 }
+
+bool ZBFileStatusResponse::operator==(const ZBFileStatusResponse& other) const {
+    return success == other.success &&
+        message == other.message &&
+        errorReason == other.errorReason &&
+        fileId == other.fileId &&
+        fileName == other.fileName &&
+        uploadDate == other.uploadDate &&
+        fileStatus == other.fileStatus &&
+        completePercentage == other.completePercentage &&
+        returnUrl == other.returnUrl;
+}

@@ -36,6 +36,8 @@ class ZBValidateResponse {
         std::string toString(bool isBatch = false);
 
         static ZBValidateResponse from_json(const json& j);
+
+        bool operator==(const ZBValidateResponse& other) const;
 };
 
 #endif

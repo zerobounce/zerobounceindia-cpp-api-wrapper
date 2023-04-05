@@ -23,6 +23,8 @@ class ZBFileStatusResponse {
         std::string toString();
 
         static ZBFileStatusResponse from_json(const json& j);
+
+        bool operator==(const ZBFileStatusResponse& other) const;
 };
 
 #endif

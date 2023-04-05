@@ -84,3 +84,41 @@ ZBGetApiUsageResponse ZBGetApiUsageResponse::from_json(const json& j) {
     
     return r;
 }
+
+bool ZBGetApiUsageResponse::operator==(const ZBGetApiUsageResponse& other) const {
+    return total == other.total &&
+        statusValid == other.statusValid &&
+        statusInvalid == other.statusInvalid &&
+        statusCatchAll == other.statusCatchAll &&
+        statusDoNotMail == other.statusDoNotMail &&
+        statusSpamtrap == other.statusSpamtrap &&
+        statusUnknown == other.statusUnknown &&
+        subStatusToxic == other.subStatusToxic &&
+        subStatusDisposable == other.subStatusDisposable &&
+        subStatusRoleBased == other.subStatusRoleBased &&
+        subStatusPossibleTrap == other.subStatusPossibleTrap &&
+        subStatusGlobalSuppression == other.subStatusGlobalSuppression &&
+        subStatusTimeoutExceeded == other.subStatusTimeoutExceeded &&
+        subStatusMailServerTemporaryError == other.subStatusMailServerTemporaryError &&
+        subStatusMailServerDidNotRespond == other.subStatusMailServerDidNotRespond &&
+        subStatusGreyListed == other.subStatusGreyListed &&
+        subStatusAntiSpamSystem == other.subStatusAntiSpamSystem &&
+        subStatusDoesNotAcceptMail == other.subStatusDoesNotAcceptMail &&
+        subStatusExceptionOccurred == other.subStatusExceptionOccurred &&
+        subStatusFailedSyntaxCheck == other.subStatusFailedSyntaxCheck &&
+        subStatusMailboxNotFound == other.subStatusMailboxNotFound &&
+        subStatusUnroutableIpAddress == other.subStatusUnroutableIpAddress &&
+        subStatusPossibleTypo == other.subStatusPossibleTypo &&
+        subStatusNoDnsEntries == other.subStatusNoDnsEntries &&
+        subStatusRoleBasedCatchAll == other.subStatusRoleBasedCatchAll &&
+        subStatusMailboxQuotaExceeded == other.subStatusMailboxQuotaExceeded &&
+        subStatusForcibleDisconnect == other.subStatusForcibleDisconnect &&
+        subStatusFailedSmtpConnection == other.subStatusFailedSmtpConnection &&
+        subStatusMxForward == other.subStatusMxForward &&
+        subStatusAlternate == other.subStatusAlternate &&
+        subStatusBlocked == other.subStatusBlocked &&
+        subStatusAllowed == other.subStatusAllowed &&
+        startDate == other.startDate &&
+        endDate == other.endDate &&
+        error == other.error;
+}
