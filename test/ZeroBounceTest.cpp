@@ -5,11 +5,36 @@
 #include <gmock/gmock.h>
 #include "ZeroBounce/ZeroBounce.h"
 
+class MockRequestHandler : public BaseRequestHandler {
+    private:
+        cpr::Response response;
+
+    protected:
+        cpr::Response doGet(const cpr::Url& url) {
+            return response;
+        }
+        cpr::Response doGet(const cpr::Url& url, const cpr::Header& header) {
+            return response;
+        }
+        cpr::Response doPost(const cpr::Url& url, const cpr::Header& header, const cpr::Body& body) {
+            return response;
+        }
+        cpr::Response doPost(const cpr::Url& url, const cpr::Header& header, const cpr::Multipart& multipart) {
+            return response;
+        }
+
+    public:
+        void setResponse(cpr::Response response) {
+            this->response = response;
+        }
+};
+
 class ZeroBounceTest : public ZeroBounce {
     private:
         static ZeroBounceTest* instance;
+
     public:
-        void setRequestHandler(RequestHandler* requestHandler) {
+        void setRequestHandler(BaseRequestHandler* requestHandler) {
             this->requestHandler = requestHandler;
         }
 
@@ -23,24 +48,14 @@ class ZeroBounceTest : public ZeroBounce {
 
 ZeroBounceTest* ZeroBounceTest::instance = nullptr;
 
-class MockRequestHandler : public RequestHandler {
-    private:
-        cpr::Response response;
-    public:
-        void setResponse(cpr::Response response) {
-            this->response = response;
-        }
+cpr::Response mockResponse(std::string content, long statusCode) {
+    cpr::Response reqResponse;
 
-        template <typename... Ts>
-        cpr::Response Get(Ts&&... ts) {
-            return response;
-        };
+    reqResponse.text = content;
+    reqResponse.status_code = statusCode;
 
-        template <typename... Ts>
-        cpr::Response Post(Ts&&... ts) {
-            return response;
-        };
-};
+    return reqResponse;
+}
 
 class Tests : public ::testing::Test {
     protected:
@@ -50,6 +65,7 @@ class Tests : public ::testing::Test {
         void SetUp() override {
             mockRequestHandler = new MockRequestHandler();
             ZeroBounceTest::getInstance()->initialize(API_KEY);
+            ZeroBounceTest::getInstance()->setRequestHandler(mockRequestHandler);
         }
 
         void TearDown() override {
@@ -57,24 +73,38 @@ class Tests : public ::testing::Test {
         }
 };
 
-TEST_F(Tests, testGetCreditsValid) {
-    std::string responseJson = "{\"Credits\":\"2375323\"}";
+TEST_F(Tests, testGetCreditsInvalid) {
+    std::string responseJson = "{\"Credits\":\"-1\"}";
 
-    cpr::Response reqResponse;
-    reqResponse.text = responseJson;
-    reqResponse.status_code = 200;
+    cpr::Response reqResponse = mockResponse(responseJson, 400);
+    mockRequestHandler->setResponse(reqResponse);
+
+    ZBErrorResponse expectedResponse = ZBErrorResponse::parseError(responseJson);
+
+    ZeroBounceTest::getInstance()->getCredits(
+        [&](ZBCreditsResponse response) {
+            FAIL() << response.toString();
+        },
+        [&](ZBErrorResponse errorResponse) {
+            ASSERT_EQ(errorResponse, expectedResponse);
+        }
+    );
+}
+
+TEST_F(Tests, testGetCreditsValid) {
+    std::string responseJson = "{\"Credits\":\"100\"}";
+
+    cpr::Response reqResponse = mockResponse(responseJson, 200);
+    mockRequestHandler->setResponse(reqResponse);
 
     ZBCreditsResponse expectedResponse = ZBCreditsResponse::from_json(json::parse(responseJson));
     
-    mockRequestHandler->setResponse(reqResponse);
-    ZeroBounceTest::getInstance()->setRequestHandler(mockRequestHandler);
-
     ZeroBounceTest::getInstance()->getCredits(
-        [](ZBCreditsResponse response) {
-            std::cout << response.toString() << std::endl;
+        [&](ZBCreditsResponse response) {
+            ASSERT_EQ(response, expectedResponse);
         },
-        [](ZBErrorResponse errorResponse) {
-            std::cout << errorResponse.toString() << std::endl;
+        [&](ZBErrorResponse errorResponse) {
+            FAIL() << errorResponse.toString();
         }
     );
 }

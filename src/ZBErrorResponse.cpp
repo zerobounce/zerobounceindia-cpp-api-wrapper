@@ -71,3 +71,8 @@ ZBErrorResponse ZBErrorResponse::parseError(std::string error) {
     response.errors = errors;
     return response;
 }
+
+bool ZBErrorResponse::operator==(const ZBErrorResponse& other) const {
+    return success == other.success &&
+        errors == errors;
+}

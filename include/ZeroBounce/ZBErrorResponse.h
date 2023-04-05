@@ -17,6 +17,8 @@ class ZBErrorResponse {
         std::string toString();
 
         static ZBErrorResponse parseError(std::string error);
+
+        bool operator==(const ZBErrorResponse& other) const;
 };
 
 #endif

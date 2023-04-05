@@ -14,6 +14,8 @@ class ZBCreditsResponse {
         std::string toString();
 
         static ZBCreditsResponse from_json(const json& j);
+
+        bool operator==(const ZBCreditsResponse& other) const;
 };
 
 #endif

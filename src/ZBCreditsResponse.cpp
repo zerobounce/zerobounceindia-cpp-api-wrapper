@@ -20,3 +20,7 @@ ZBCreditsResponse ZBCreditsResponse::from_json(const json& j) {
 
     return r;
 }
+
+bool ZBCreditsResponse::operator==(const ZBCreditsResponse& other) const {
+    return credits == other.credits;
+}

@@ -33,22 +33,44 @@ struct SendFileOptions {
     bool removeDuplicate = true;
 };
 
-class RequestHandler {
+class BaseRequestHandler {
     public:
         template <typename... Ts>
         cpr::Response Get(Ts&&... ts) {
-            return cpr::Get(std::forward<Ts>(ts)...);
-        };
+            return doGet(std::forward<Ts>(ts)...);
+        }
 
         template <typename... Ts>
         cpr::Response Post(Ts&&... ts) {
-            return cpr::Post(std::forward<Ts>(ts)...);
-        };
+            return doPost(std::forward<Ts>(ts)...);
+        }
+
+    protected:
+        virtual cpr::Response doGet(const cpr::Url& url) = 0;
+        virtual cpr::Response doGet(const cpr::Url& url, const cpr::Header& header) = 0;
+        virtual cpr::Response doPost(const cpr::Url& url, const cpr::Header& header, const cpr::Body& body) = 0;
+        virtual cpr::Response doPost(const cpr::Url& url, const cpr::Header& header, const cpr::Multipart& multipart) = 0;
+};
+
+class RequestHandler : public BaseRequestHandler {
+    protected:
+        cpr::Response doGet(const cpr::Url& url) {
+            return cpr::Get(url);
+        }
+        cpr::Response doGet(const cpr::Url& url, const cpr::Header& header) {
+            return cpr::Get(url, header);
+        }
+        cpr::Response doPost(const cpr::Url& url, const cpr::Header& header, const cpr::Body& body) {
+            return cpr::Post(url, header, body);
+        }
+        cpr::Response doPost(const cpr::Url& url, const cpr::Header& header, const cpr::Multipart& multipart) {
+            return cpr::Post(url, header, multipart);
+        }
 };
 
 class ZeroBounce {
     protected:
-        RequestHandler* requestHandler;
+        BaseRequestHandler* requestHandler;
     private:
         static ZeroBounce* instance;
         std::string apiKey;
