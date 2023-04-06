@@ -32,9 +32,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC include)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC cpr::cpr nlohmann_json::nlohmann_json)
 
-add_executable(zb_test main.cpp)
-target_link_libraries(zb_test PRIVATE ${PROJECT_NAME})
-
 add_executable(ZeroBounceTests test/ZeroBounceTest.cpp)
 target_link_libraries(ZeroBounceTests PRIVATE ${PROJECT_NAME} gtest gtest_main)
 enable_testing()
