@@ -4,18 +4,14 @@ project(ZeroBounce VERSION 1.0.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-file(GLOB_RECURSE SOURCES "src/*.cpp")
-add_library(${PROJECT_NAME} STATIC ${SOURCES})
-target_include_directories(${PROJECT_NAME} PUBLIC include)
-
 include(FetchContent)
 
 # Download and build libcpr
 FetchContent_Declare(
     cpr 
     GIT_REPOSITORY https://github.com/libcpr/cpr.git
-    GIT_TAG 0817715923c9705e68994eb52ef9df3f6845beba
-) # The commit hash for 1.10.x. Replace with the latest from: https://github.com/libcpr/cpr/releases
+    GIT_TAG 1.10.2
+)
 # Download and build nlohmann_json
 FetchContent_Declare(
     nlohmann_json 
@@ -30,11 +26,17 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(cpr nlohmann_json googletest)
 
+file(GLOB_RECURSE SOURCES "src/*.cpp")
+add_library(${PROJECT_NAME} SHARED ${SOURCES})
+target_include_directories(${PROJECT_NAME} PUBLIC include)
+
 target_link_libraries(${PROJECT_NAME} PUBLIC cpr::cpr nlohmann_json::nlohmann_json)
 
 add_executable(zb_test main.cpp)
 target_link_libraries(zb_test PRIVATE ${PROJECT_NAME})
 
-add_executable(tests test/ZeroBounceTest.cpp)
-target_include_directories(tests PRIVATE ${gtest_SOURCE_DIR}/include)
-target_link_libraries(tests PRIVATE gtest gmock gtest_main ${PROJECT_NAME})
+add_executable(ZeroBounceTests test/ZeroBounceTest.cpp)
+target_link_libraries(ZeroBounceTests PRIVATE ${PROJECT_NAME} gtest gtest_main)
+enable_testing()
+include(GoogleTest)
+gtest_discover_tests(ZeroBounceTests)

@@ -3,7 +3,7 @@
 
 #include <cpr/cpr.h>
 #include <gtest/gtest.h>
-#include <gmock/gmock.h>
+
 #include "ZeroBounce/ZeroBounce.h"
 
 class MockRequestHandler : public BaseRequestHandler {
