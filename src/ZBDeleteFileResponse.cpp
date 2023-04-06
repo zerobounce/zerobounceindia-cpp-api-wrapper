@@ -26,3 +26,10 @@ ZBDeleteFileResponse ZBDeleteFileResponse::from_json(const json& j) {
     
     return r;
 }
+
+bool ZBDeleteFileResponse::operator==(const ZBDeleteFileResponse& other) const {
+    return success == other.success &&
+        message == other.message &&
+        fileName == other.fileName &&
+        fileId == other.fileId;
+}

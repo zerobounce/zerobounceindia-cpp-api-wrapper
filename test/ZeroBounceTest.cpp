@@ -49,11 +49,15 @@ class ZeroBounceTest : public ZeroBounce {
 
 ZeroBounceTest* ZeroBounceTest::instance = nullptr;
 
-cpr::Response mockResponse(std::string content, long statusCode) {
+cpr::Response mockResponse(std::string content, long statusCode, std::string contentType = "") {
     cpr::Response reqResponse;
 
     reqResponse.text = content;
     reqResponse.status_code = statusCode;
+
+    if (!contentType.empty()) {
+        reqResponse.header["Content-Type"] = contentType;
+    }
 
     return reqResponse;
 }
@@ -464,12 +468,303 @@ TEST_F(Tests, testGetFileInvalid) {
 
     ZeroBounceTest::getInstance()->getFile(
         "aaaaaaaa-zzzz-xxxx-yyyy-5003727fffff",
-        "./downloads/email.csv",
+        "test/downloads/file.csv",
         [&](ZBGetFileResponse response) {
             FAIL() << response.toString();
         },
         [&](ZBErrorResponse errorResponse) {
             ASSERT_EQ(errorResponse, expectedResponse);
+        }
+    );
+}
+
+TEST_F(Tests, testGetFileValid) {
+    std::string responseJson = 
+        R"("Email Address","First Name","Last Name","Gender","ZB Status","ZB Sub Status","ZB Account","ZB Domain","ZB First Name","ZB Last Name","ZB Gender","ZB Free Email","ZB MX Found","ZB MX Record","ZB SMTP Provider","ZB Did You Mean"
+        "alex.broasca@mountsoftware.ro","Alex","Broasca","","invalid","mailbox_not_found","alexbroasca","mountsoftware.ro","alex","broasca","male","False","true","aspmx.l.google.com","g-suite",""
+        )";
+
+    cpr::Response reqResponse = mockResponse(responseJson, 200, "application/octet-stream");
+    mockRequestHandler->setResponse(reqResponse);
+
+    ZBGetFileResponse expectedResponse;
+    expectedResponse.success = true;
+    expectedResponse.localFilePath = "test/downloads/file.csv";
+
+    ZeroBounceTest::getInstance()->getFile(
+        "aaaaaaaa-zzzz-xxxx-yyyy-5003727fffff",
+        "test/downloads/file.csv",
+        [&](ZBGetFileResponse response) {
+            ASSERT_EQ(response, expectedResponse);
+        },
+        [&](ZBErrorResponse errorResponse) {
+            FAIL() << errorResponse.toString();
+        }
+    );
+}
+
+TEST_F(Tests, testDeleteFileInvalid) {
+    std::string responseJson = "{\"success\":false,\"message\":\"File cannot be found.\"}";
+
+    cpr::Response reqResponse = mockResponse(responseJson, 400);
+    mockRequestHandler->setResponse(reqResponse);
+
+    ZBErrorResponse expectedResponse = ZBErrorResponse::parseError(responseJson);
+
+    ZeroBounceTest::getInstance()->deleteFile(
+        "aaaaaaaa-zzzz-xxxx-yyyy-5003727fffff",
+        [&](ZBDeleteFileResponse response) {
+            FAIL() << response.toString();
+        },
+        [&](ZBErrorResponse errorResponse) {
+            ASSERT_EQ(errorResponse, expectedResponse);
+        }
+    );
+}
+
+TEST_F(Tests, testDeleteFileValid) {
+    std::string responseJson = R"({
+        "success":true,
+        "message":"File Deleted",
+        "file_name":"test2",
+        "file_id":"b222a0fd-90d5-416c-8f1a-9cc3851fc823"
+    })";
+
+    cpr::Response reqResponse = mockResponse(responseJson, 200);
+    mockRequestHandler->setResponse(reqResponse);
+
+    ZBDeleteFileResponse expectedResponse = ZBDeleteFileResponse::from_json(json::parse(responseJson));
+
+    ZeroBounceTest::getInstance()->deleteFile(
+        "aaaaaaaa-zzzz-xxxx-yyyy-5003727fffff",
+        [&](ZBDeleteFileResponse response) {
+            ASSERT_EQ(response, expectedResponse);
+        },
+        [&](ZBErrorResponse errorResponse) {
+            FAIL() << errorResponse.toString();
+        }
+    );
+}
+
+TEST_F(Tests, testScoringSendFileInvalid) {
+    std::string responseJson = "{\"success\":\"False\",\"message\":[\"api_key is invalid\"]}";
+
+    cpr::Response reqResponse = mockResponse(responseJson, 401);
+    mockRequestHandler->setResponse(reqResponse);
+
+    ZBErrorResponse expectedResponse = ZBErrorResponse::parseError(responseJson);
+
+    SendFileOptions options;
+
+    ZeroBounceTest::getInstance()->scoringSendFile(
+        "../email_file.csv",
+        1,
+        options,
+        [&](ZBSendFileResponse response) {
+            FAIL() << response.toString();
+        },
+        [&](ZBErrorResponse errorResponse) {
+            ASSERT_EQ(errorResponse, expectedResponse);
+        }
+    );
+}
+
+TEST_F(Tests, testScoringSendFileValid) {
+    std::string responseJson = R"({
+        "success":true,
+        "message":"File Accepted",
+        "file_name":"email_file.csv",
+        "file_id":"aaaaaaaa-zzzz-xxxx-yyyy-5003727fffff"
+    })";
+
+    cpr::Response reqResponse = mockResponse(responseJson, 201);
+    mockRequestHandler->setResponse(reqResponse);
+
+    ZBSendFileResponse expectedResponse = ZBSendFileResponse::from_json(json::parse(responseJson));
+
+    SendFileOptions options;
+
+    ZeroBounceTest::getInstance()->scoringSendFile(
+        "../email_file.csv",
+        1,
+        options,
+        [&](ZBSendFileResponse response) {
+            ASSERT_EQ(response, expectedResponse);
+        },
+        [&](ZBErrorResponse errorResponse) {
+            FAIL() << errorResponse.toString();
+        }
+    );
+}
+
+TEST_F(Tests, testScoringFileStatusInvalid) {
+    std::string responseJson = "{\"success\":\"False\",\"message\":[\"api_key is invalid\"]}";
+
+    cpr::Response reqResponse = mockResponse(responseJson, 401);
+    mockRequestHandler->setResponse(reqResponse);
+
+    ZBErrorResponse expectedResponse = ZBErrorResponse::parseError(responseJson);
+
+    ZeroBounceTest::getInstance()->scoringFileStatus(
+        "aaaaaaaa-zzzz-xxxx-yyyy-5003727fffff",
+        [&](ZBFileStatusResponse response) {
+            FAIL() << response.toString();
+        },
+        [&](ZBErrorResponse errorResponse) {
+            ASSERT_EQ(errorResponse, expectedResponse);
+        }
+    );
+}
+
+TEST_F(Tests, testScoringFileStatusValid) {
+    std::string responseJson = R"({
+        "success": true,
+        "file_id": "aaaaaaaa-zzzz-xxxx-yyyy-5003727fffff",
+        "file_name": "email_file.csv",
+        "upload_date": "10/20/2018 4:35:58 PM",
+        "file_status": "Complete",
+        "complete_percentage": "100%",
+        "error_reason": null,
+        "return_url": "Your return URL if provided when calling sendfile API"
+    })";
+
+    cpr::Response reqResponse = mockResponse(responseJson, 200);
+    mockRequestHandler->setResponse(reqResponse);
+
+    ZBFileStatusResponse expectedResponse = ZBFileStatusResponse::from_json(json::parse(responseJson));
+
+    ZeroBounceTest::getInstance()->scoringFileStatus(
+        "aaaaaaaa-zzzz-xxxx-yyyy-5003727fffff",
+        [&](ZBFileStatusResponse response) {
+            ASSERT_EQ(response, expectedResponse);
+        },
+        [&](ZBErrorResponse errorResponse) {
+            FAIL() << errorResponse.toString();
+        }
+    );
+}
+
+TEST_F(Tests, testScoringGetFileInvalid) {
+    std::string responseJson = "{\"success\":false,\"message\":\"File deleted.\"}";
+
+    cpr::Response reqResponse = mockResponse(responseJson, 400);
+    mockRequestHandler->setResponse(reqResponse);
+
+    ZBErrorResponse expectedResponse = ZBErrorResponse::parseError(responseJson);
+
+    ZeroBounceTest::getInstance()->scoringGetFile(
+        "aaaaaaaa-zzzz-xxxx-yyyy-5003727fffff",
+        "test/downloads/ai_file.csv",
+        [&](ZBGetFileResponse response) {
+            FAIL() << response.toString();
+        },
+        [&](ZBErrorResponse errorResponse) {
+            ASSERT_EQ(errorResponse, expectedResponse);
+        }
+    );
+}
+
+TEST_F(Tests, testScoringGetFileValid) {
+    std::string responseJson = 
+        R"("email","firstname","lastname","ZeroBounceQualityScore"
+        "alex.broasca@mountsoftware.ro","Alex","Broasca","0")";
+
+    cpr::Response reqResponse = mockResponse(responseJson, 200, "application/octet-stream");
+    mockRequestHandler->setResponse(reqResponse);
+
+    ZBGetFileResponse expectedResponse;
+    expectedResponse.success = true;
+    expectedResponse.localFilePath = "test/downloads/ai_file.csv";
+
+    ZeroBounceTest::getInstance()->scoringGetFile(
+        "aaaaaaaa-zzzz-xxxx-yyyy-5003727fffff",
+        "test/downloads/ai_file.csv",
+        [&](ZBGetFileResponse response) {
+            ASSERT_EQ(response, expectedResponse);
+        },
+        [&](ZBErrorResponse errorResponse) {
+            FAIL() << errorResponse.toString();
+        }
+    );
+}
+
+TEST_F(Tests, testScoringDeleteFileInvalid) {
+    std::string responseJson = "{\"success\":false,\"message\":\"File cannot be found.\"}";
+
+    cpr::Response reqResponse = mockResponse(responseJson, 400);
+    mockRequestHandler->setResponse(reqResponse);
+
+    ZBErrorResponse expectedResponse = ZBErrorResponse::parseError(responseJson);
+
+    ZeroBounceTest::getInstance()->scoringDeleteFile(
+        "aaaaaaaa-zzzz-xxxx-yyyy-5003727fffff",
+        [&](ZBDeleteFileResponse response) {
+            FAIL() << response.toString();
+        },
+        [&](ZBErrorResponse errorResponse) {
+            ASSERT_EQ(errorResponse, expectedResponse);
+        }
+    );
+}
+
+TEST_F(Tests, testScoringDeleteFileValid) {
+    std::string responseJson = R"({
+        "success":true,
+        "message":"File Deleted",
+        "file_name":"test2",
+        "file_id":"b222a0fd-90d5-416c-8f1a-9cc3851fc823"
+    })";
+
+    cpr::Response reqResponse = mockResponse(responseJson, 200);
+    mockRequestHandler->setResponse(reqResponse);
+
+    ZBDeleteFileResponse expectedResponse = ZBDeleteFileResponse::from_json(json::parse(responseJson));
+
+    ZeroBounceTest::getInstance()->scoringDeleteFile(
+        "aaaaaaaa-zzzz-xxxx-yyyy-5003727fffff",
+        [&](ZBDeleteFileResponse response) {
+            ASSERT_EQ(response, expectedResponse);
+        },
+        [&](ZBErrorResponse errorResponse) {
+            FAIL() << errorResponse.toString();
+        }
+    );
+}
+
+TEST_F(Tests, testActivityDataInvalid) {
+    std::string responseJson = "{\"error\":\"Invalid API key or your account ran out of credits\"}";
+
+    cpr::Response reqResponse = mockResponse(responseJson, 400);
+    mockRequestHandler->setResponse(reqResponse);
+
+    ZBErrorResponse expectedResponse = ZBErrorResponse::parseError(responseJson);
+
+    ZeroBounceTest::getInstance()->getActivityData(
+        "valid@example.com",
+        [&](ZBActivityDataResponse response) {
+            FAIL() << response.toString();
+        },
+        [&](ZBErrorResponse errorResponse) {
+            ASSERT_EQ(errorResponse, expectedResponse);
+        }
+    );
+}
+
+TEST_F(Tests, testActivityDataValid) {
+    std::string responseJson = "{\"found\":true,\"active_in_days\":\"180\"}";
+
+    cpr::Response reqResponse = mockResponse(responseJson, 200);
+    mockRequestHandler->setResponse(reqResponse);
+
+    ZBActivityDataResponse expectedResponse = ZBActivityDataResponse::from_json(json::parse(responseJson));
+
+    ZeroBounceTest::getInstance()->getActivityData(
+        "valid@example.com",
+        [&](ZBActivityDataResponse response) {
+            ASSERT_EQ(response, expectedResponse);
+        },
+        [&](ZBErrorResponse errorResponse) {
+            FAIL() << errorResponse.toString();
         }
     );
 }

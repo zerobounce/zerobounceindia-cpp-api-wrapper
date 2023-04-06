@@ -23,3 +23,9 @@ ZBGetFileResponse ZBGetFileResponse::from_json(const json& j) {
     
     return r;
 }
+
+bool ZBGetFileResponse::operator==(const ZBGetFileResponse& other) const {
+    return success == other.success &&
+        message == other.message &&
+        localFilePath == other.localFilePath;
+}

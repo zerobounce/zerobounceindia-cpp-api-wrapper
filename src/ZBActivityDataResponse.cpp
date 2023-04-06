@@ -22,3 +22,8 @@ ZBActivityDataResponse ZBActivityDataResponse::from_json(const json& j) {
 
     return r;
 }
+
+bool ZBActivityDataResponse::operator==(const ZBActivityDataResponse& other) const {
+    return found == other.found &&
+        activeInDays == other.activeInDays;
+}

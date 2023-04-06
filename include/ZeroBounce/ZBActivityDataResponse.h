@@ -15,6 +15,8 @@ class ZBActivityDataResponse {
         std::string toString();
 
         static ZBActivityDataResponse from_json(const json& j);
+
+        bool operator==(const ZBActivityDataResponse& other) const;
 };
 
 #endif

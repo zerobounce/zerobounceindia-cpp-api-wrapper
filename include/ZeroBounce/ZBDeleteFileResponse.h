@@ -17,6 +17,8 @@ class ZBDeleteFileResponse {
         std::string toString();
 
         static ZBDeleteFileResponse from_json(const json& j);
+
+        bool operator==(const ZBDeleteFileResponse& other) const;
 };
 
 #endif
