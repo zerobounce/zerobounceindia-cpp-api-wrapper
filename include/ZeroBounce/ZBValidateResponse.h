@@ -10,6 +10,9 @@
 
 using json = nlohmann::json;
 
+/**
+ * The model used for the GET /validate request.
+ */
 class ZBValidateResponse {
     public:
         std::string address;

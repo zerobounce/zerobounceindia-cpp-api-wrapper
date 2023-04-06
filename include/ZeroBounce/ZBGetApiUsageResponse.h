@@ -7,6 +7,9 @@
 
 using json = nlohmann::json;
 
+/**
+ * The model used for the GET /getapiusage request.
+ */
 class ZBGetApiUsageResponse {
     public:
         int total = 0;

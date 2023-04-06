@@ -7,6 +7,9 @@
 
 using json = nlohmann::json;
 
+/**
+ * The model class used for the GET /getcredits request.
+ */
 class ZBCreditsResponse {
     public:
         int credits = -1;

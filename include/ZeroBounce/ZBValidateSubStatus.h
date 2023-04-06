@@ -3,6 +3,9 @@
 
 #include "nlohmann/json.hpp"
 
+/**
+ * Enum that lists all the possible sub-statuses of the email validation result.
+ */
 enum ZBValidateSubStatus {
     None,
     AntispamSystem,

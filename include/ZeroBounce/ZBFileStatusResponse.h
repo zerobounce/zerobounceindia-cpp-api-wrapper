@@ -8,6 +8,9 @@
 
 using json = nlohmann::json;
 
+/**
+ * The model used for the GET /scoring/filestatus and GET /filestatus requests.
+ */
 class ZBFileStatusResponse {
     public:
         bool success = false;

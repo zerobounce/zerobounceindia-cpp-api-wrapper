@@ -8,6 +8,9 @@
 
 using json = nlohmann::json;
 
+/**
+ * The model used for the POST /scoring/sendFile and POST /sendFile requests.
+ */
 class ZBSendFileResponse {
     public:
         bool success = false;

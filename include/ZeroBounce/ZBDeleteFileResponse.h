@@ -7,6 +7,9 @@
 
 using json = nlohmann::json;
 
+/**
+ * The model class for the GET /scoring/deletefile GET /deletefile requests.
+ */
 class ZBDeleteFileResponse {
     public:
         bool success = false;

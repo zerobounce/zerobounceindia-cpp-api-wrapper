@@ -6,6 +6,9 @@
 
 #include "ZeroBounce/ZeroBounce.h"
 
+/**
+ * Class used to handle http requests made with libcpr during tests.
+ */
 class MockRequestHandler : public BaseRequestHandler {
     private:
         cpr::Response response;
@@ -30,6 +33,9 @@ class MockRequestHandler : public BaseRequestHandler {
         }
 };
 
+/**
+ * The ZeroBounce test class.
+ */
 class ZeroBounceTest : public ZeroBounce {
     private:
         static ZeroBounceTest* instance;
@@ -49,6 +55,14 @@ class ZeroBounceTest : public ZeroBounce {
 
 ZeroBounceTest* ZeroBounceTest::instance = nullptr;
 
+/**
+ * Function that creates a mock response to be returned by http requests.
+ * 
+ * @param content           content of the response
+ * @param statusCode        status code of the response
+ * @param contentType       content type of the response
+ * @return cpr::Response    generated response
+ */
 cpr::Response mockResponse(std::string content, long statusCode, std::string contentType = "") {
     cpr::Response reqResponse;
 
@@ -62,6 +76,9 @@ cpr::Response mockResponse(std::string content, long statusCode, std::string con
     return reqResponse;
 }
 
+/**
+ * Class that handle tests suite.
+ */
 class Tests : public ::testing::Test {
     protected:
         const std::string API_KEY = "api-key";

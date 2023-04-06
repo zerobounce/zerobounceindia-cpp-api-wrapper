@@ -3,6 +3,9 @@
 
 #include "nlohmann/json.hpp"
 
+/**
+ * Enum that lists all the possible statuses of the email validation result.
+ */
 enum ZBValidateStatus {
     Unknown,
     Valid,

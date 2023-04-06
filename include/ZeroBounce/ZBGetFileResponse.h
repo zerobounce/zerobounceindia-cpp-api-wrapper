@@ -7,6 +7,9 @@
 
 using json = nlohmann::json;
 
+/**
+ * The model used for the GET /scoring/getFile and GET /getFile requests.
+ */
 class ZBGetFileResponse {
     public:
         bool success = false;

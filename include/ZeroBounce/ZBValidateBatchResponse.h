@@ -10,6 +10,9 @@
 
 using json = nlohmann::json;
 
+/**
+ * Struct representing an item that is used in email batch validation
+ */
 struct ZBEmailToValidate {
     std::string emailAddress;
     std::string ipAddress;
@@ -18,6 +21,10 @@ struct ZBEmailToValidate {
         : emailAddress(email), ipAddress(ip) {}
 };
 
+
+/**
+ * Model representing error from email batch validation.
+ */
 class ZBValidateError {
     public:
         std::string error;
@@ -30,6 +37,9 @@ class ZBValidateError {
         bool operator==(const ZBValidateError& other) const;
 };
 
+/**
+ * The model used for the POST /validatebatch request.
+ */
 class ZBValidateBatchResponse {
     public:
         std::vector<ZBValidateResponse> emailBatch;

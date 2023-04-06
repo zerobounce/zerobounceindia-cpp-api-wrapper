@@ -7,6 +7,9 @@
 
 using json = nlohmann::json;
 
+/**
+ * The model used for the GET /activity request.
+ */
 class ZBActivityDataResponse {
     public:
         bool found = false;
