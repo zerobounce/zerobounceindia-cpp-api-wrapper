@@ -35,6 +35,10 @@ std::string ZBGetApiUsageResponse::toString()
                 ", subStatusMailboxQuotaExceeded=" << subStatusMailboxQuotaExceeded <<
                 ", subStatusForcibleDisconnect=" << subStatusForcibleDisconnect <<
                 ", subStatusFailedSmtpConnection=" << subStatusFailedSmtpConnection <<
+                ", subStatusMxForward=" << subStatusMxForward <<
+                ", subStatusAlternate=" << subStatusAlternate <<
+                ", subStatusBlocked=" << subStatusBlocked <<
+                ", subStatusAllowed=" << subStatusAllowed <<
                 ", startDate='" << startDate << '\'' <<
                 ", endDate='" << endDate << '\'' <<
                 ", error='" << error << '\'' <<
