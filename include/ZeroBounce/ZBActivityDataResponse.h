@@ -14,6 +14,7 @@ class ZBActivityDataResponse {
     public:
         bool found = false;
         int activeInDays = -1;
+        std::string error;
 
         std::string toString();
 
