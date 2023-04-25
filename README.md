@@ -121,7 +121,7 @@ ZeroBounce::getInstance()->getActivityData(
 
 * ##### The sendfile API allows user to send a file for bulk email validation
 ```cpp
-std::string filePath = "email_file.csv"; 	// The path of the csv or txt file
+std::string filePath = "<FILE_PATH>"; 	// The path of the csv or txt file
 int emailAddressColumn = 3; 			// The index of "email" column in the file. Index starts at 1
 SendFileOptions options;			// Additional options
 
@@ -195,7 +195,7 @@ ZeroBounce::getInstance()->deleteFile(
 
 * ##### The scoringSendfile API allows user to send a file for bulk email validation
 ```cpp
-std::string filePath = File("<FILE_PATH>");	// The path of the csv or txt file
+std::string filePath = "<FILE_PATH>";		// The path of the csv or txt file
 int emailAddressColumn = 3; 			// The index of "email" column in the file. Index starts at 1
 SendFileOptions options;			// Additional options
 
