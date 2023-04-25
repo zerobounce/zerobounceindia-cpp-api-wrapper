@@ -178,7 +178,7 @@ ZeroBounce::getInstance()->fileStatus(
 );
 ```
 
-* ##### Deletes the file that was submitted using scoring sendfile API. File can be deleted only when its status is _`Complete`_
+* ##### Deletes the file that was submitted using sendfile API. File can be deleted only when its status is _`Complete`_
 ```cpp
 std::string fileId = "<FILE_ID>";		// The returned file ID when calling sendfile API
 
