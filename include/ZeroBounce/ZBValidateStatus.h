@@ -7,7 +7,7 @@
  * Enum that lists all the possible statuses of the email validation result.
  */
 enum ZBValidateStatus {
-    Unknown,
+    UnknownValue,
     Valid,
     Invalid,
     CatchAll,
@@ -19,7 +19,7 @@ enum ZBValidateStatus {
 NLOHMANN_JSON_SERIALIZE_ENUM(
     ZBValidateStatus,
     {
-        {ZBValidateStatus::Unknown, "unknown"},
+        {ZBValidateStatus::UnknownValue, "unknown"},
         {ZBValidateStatus::Valid, "valid"},
         {ZBValidateStatus::Invalid, "invalid"},
         {ZBValidateStatus::CatchAll, "catch-all"},

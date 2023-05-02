@@ -44,7 +44,7 @@ ZBValidateResponse ZBValidateResponse::from_json(const json& j) {
     ZBValidateResponse r;
 
     r.address = getOrDefault<std::string>(j, "address", "");
-    r.status = getOrDefault<ZBValidateStatus>(j, "status", ZBValidateStatus::Unknown);
+    r.status = getOrDefault<ZBValidateStatus>(j, "status", ZBValidateStatus::UnknownValue);
     r.subStatus = getOrDefault<ZBValidateSubStatus>(j, "sub_status", ZBValidateSubStatus::None);
     r.freeEmail = getOrDefault<bool>(j, "free_email", false);
     r.didYouMean = getOrDefault<std::string>(j, "did_you_mean", "");
