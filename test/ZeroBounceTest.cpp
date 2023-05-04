@@ -498,7 +498,7 @@ TEST_F(Tests, testGetFileInvalid) {
 TEST_F(Tests, testGetFileValid) {
     std::string responseJson = 
         R"("Email Address","First Name","Last Name","Gender","ZB Status","ZB Sub Status","ZB Account","ZB Domain","ZB First Name","ZB Last Name","ZB Gender","ZB Free Email","ZB MX Found","ZB MX Record","ZB SMTP Provider","ZB Did You Mean"
-        "alex.broasca@mountsoftware.ro","Alex","Broasca","","invalid","mailbox_not_found","alexbroasca","mountsoftware.ro","alex","broasca","male","False","true","aspmx.l.google.com","g-suite",""
+        "valid@example.com","zero","bounce","","valid","","","","zero","bounce","male","False","true","mx.example.com","example",""
         )";
 
     cpr::Response reqResponse = mockResponse(responseJson, 200, "application/octet-stream");
@@ -684,7 +684,7 @@ TEST_F(Tests, testScoringGetFileInvalid) {
 TEST_F(Tests, testScoringGetFileValid) {
     std::string responseJson = 
         R"("email","firstname","lastname","ZeroBounceQualityScore"
-        "alex.broasca@mountsoftware.ro","Alex","Broasca","0")";
+        "valid@example.com","zero","bounce","10")";
 
     cpr::Response reqResponse = mockResponse(responseJson, 200, "application/octet-stream");
     mockRequestHandler->setResponse(reqResponse);
