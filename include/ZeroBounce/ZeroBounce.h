@@ -86,9 +86,9 @@ class ZeroBounce {
     private:
         static ZeroBounce* instance;
         std::string apiKey;
-        const std::string apiBaseUrl = "https://api.zerobounce.net/v2";
-        const std::string bulkApiBaseUrl = "https://bulkapi.zerobounce.net/v2";
-        const std::string bulkApiScoringBaseUrl = "https://bulkapi.zerobounce.net/v2/scoring";
+        const std::string apiBaseUrl = "https://api.zerobounce.in/v2";
+        const std::string bulkApiBaseUrl = "https://bulkapi.zerobounce.in/v2";
+        const std::string bulkApiScoringBaseUrl = "https://bulkapi.zerobounce.in/v2/scoring";
 
         /**
          * Checks if the [apiKey] is invalid or not and if it is, then it throws an error through the provided

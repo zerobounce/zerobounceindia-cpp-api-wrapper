@@ -1,5 +1,5 @@
-## Zero Bounce C++ API Wrapper
-This API wrapper contains methods for interacting easily with ZeroBounce API.
+## Zero Bounce India C++ API Wrapper
+This API wrapper contains methods for interacting easily with ZeroBounce India API.
 More information about ZeroBounce you can find in the [official documentation](https://www.zerobounce.net/docs/).
 
 ## INSTALLATION
@@ -8,7 +8,7 @@ You can install by using CMake with `FetchContent`. Add the following to your `C
 include(FetchContent)
 FetchContent_Declare(
     ZeroBounce
-    GIT_REPOSITORY https://github.com/zerobounce/zerobounce-cpp-api-wrapper.git
+    GIT_REPOSITORY https://github.com/zerobounce/zerobounceindia-cpp-api-wrapper.git
     GIT_TAG <DESIRED_TAG>
 )
 FetchContent_MakeAvailable(ZeroBounce)
