@@ -7,17 +7,17 @@ You can install by using CMake with `FetchContent`. Add the following to your `C
 ```cmake
 include(FetchContent)
 FetchContent_Declare(
-    ZeroBounce
+    ZeroBounceIndia
     GIT_REPOSITORY https://github.com/zerobounce/zerobounceindia-cpp-api-wrapper.git
     GIT_TAG <DESIRED_TAG>
 )
-FetchContent_MakeAvailable(ZeroBounce)
+FetchContent_MakeAvailable(ZeroBounceIndia)
 ```
 
 This will produce the target `ZeroBounce` which you can link against the typical way:
 
 ```cmake
-target_link_libraries(your_target_name PRIVATE ZeroBounce)
+target_link_libraries(your_target_name PRIVATE ZeroBounceIndia)
 ```
 
 ## USAGE
