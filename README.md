@@ -14,7 +14,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(ZeroBounceIndia)
 ```
 
-This will produce the target `ZeroBounce` which you can link against the typical way:
+This will produce the target `ZeroBounceIndia` which you can link against the typical way:
 
 ```cmake
 target_link_libraries(your_target_name PRIVATE ZeroBounceIndia)
