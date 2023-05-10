@@ -3,6 +3,8 @@ This API wrapper contains methods for interacting easily with ZeroBounce India A
 More information about ZeroBounce you can find in the [official documentation](https://www.zerobounce.net/docs/).
 
 ## INSTALLATION
+Before installing the wrapper, you have to make sure that `CMake` is installed on your system. It can be downloaded from [here](https://cmake.org/download/).
+
 You can install by using CMake with `FetchContent`. Add the following to your `CMakeLists.txt`:
 ```cmake
 include(FetchContent)
@@ -19,6 +21,30 @@ This will produce the target `ZeroBounceIndia` which you can link against the ty
 ```cmake
 target_link_libraries(your_target_name PRIVATE ZeroBounceIndia)
 ```
+
+If using Visual Studio Code, you can build the library using `CMake` and `Cmake Tools` extensions. After the extensions have been installed, you simply open the commands with `CTRL + SHIFT + P` and use `CMake: Configure` followed by `CMake: Build`.
+
+Alternatively, you can also use the CLI commands in the root directory of your project.
+
+#### LINUX
+
+```bash
+mkdir build
+cmake -S . -B build -G "Unix Makefiles"
+cmake --build build
+```
+
+#### WINDOWS
+
+You have to make sure that `MinGW` is installed on your system. It can be installed following the steps [here](https://code.visualstudio.com/docs/cpp/config-mingw).
+
+```bash
+mkdir build
+cmake -S . -B build -G "MinGW Makefiles"
+cmake --build build
+```
+
+Be aware that the library may require some .dll files (found in the `build` directory) in order to work properly in your project.
 
 ## USAGE
 Include the library in your file:
@@ -264,3 +290,19 @@ ZeroBounce::getInstance()->scoringDeleteFile(
 );
 ```
 
+## DEVELOPMENT
+
+It is recommended that the development should be done on Linux.
+
+After checking out the repo, build the library then run tests.
+
+```bash
+./build/bin/ZeroBounceTests
+```
+
+You should see an output like this
+
+```bash
+[==========] 26 tests from 1 test suite ran. (7 ms total)
+[  PASSED  ] 26 tests.
+```
