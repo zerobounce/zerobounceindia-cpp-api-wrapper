@@ -269,7 +269,7 @@ void ZeroBounce::sendFileInternal(
     if (invalidApiKey(errorCallback)) return;
 
     try {
-        std::string urlPath = (scoring ? bulkApiScoringBaseUrl : bulkApiBaseUrl) + "/sendFile";
+        std::string urlPath = (scoring ? bulkApiScoringBaseUrl : bulkApiBaseUrl) + "/sendfile";
 
         cpr::Multipart multipart{
             {"api_key", apiKey},
