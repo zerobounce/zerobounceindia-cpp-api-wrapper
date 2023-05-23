@@ -1,8 +1,4 @@
-## Zero Bounce India C++ API Wrapper
-This API wrapper contains methods for interacting easily with ZeroBounce India API.
-More information about ZeroBounce you can find in the [official documentation](https://www.zerobounce.net/docs/).
-
-## INSTALLATION
+#### INSTALLATION
 Before installing the wrapper, you have to make sure that `CMake` is installed on your system. It can be downloaded from [here](https://cmake.org/download/).
 
 You can install by using CMake with `FetchContent`. Add the following to your `CMakeLists.txt`:
@@ -26,7 +22,7 @@ If using Visual Studio Code, you can build the library using `CMake` and `Cmake 
 
 Alternatively, you can also use the CLI commands in the root directory of your project.
 
-#### LINUX
+###### LINUX
 
 ```bash
 mkdir build
@@ -34,7 +30,7 @@ cmake -S . -B build -G "Unix Makefiles"
 cmake --build build
 ```
 
-#### WINDOWS
+###### WINDOWS
 
 You have to make sure that `MinGW` is installed on your system. It can be installed following the steps [here](https://code.visualstudio.com/docs/cpp/config-mingw).
 
@@ -46,10 +42,10 @@ cmake --build build
 
 Be aware that the library may require some .dll files (found in the `build` directory) in order to work properly in your project.
 
-## USAGE
+#### USAGE
 Include the library in your file:
 ```cpp
-#include <ZeroBounce/ZeroBounce.h>
+###include <ZeroBounce/ZeroBounce.h>
 ``` 
 
 Initialize the wrapper with your api key:
@@ -57,9 +53,9 @@ Initialize the wrapper with your api key:
 ZeroBounce::getInstance()->initialize("<YOUR_API_KEY>");
 ```
 
-## Examples
+#### Examples
 Then you can use any of the wrapper methods, for example:
-* ##### Check how many credits you have left on your account
+* ####### Check how many credits you have left on your account
 ```cpp
 ZeroBounce::getInstance()->getCredits(
     [](ZBCreditsResponse response) {
@@ -71,7 +67,7 @@ ZeroBounce::getInstance()->getCredits(
 );
 ```
 
-* ##### Check your API usage for a given period of time
+* ####### Check your API usage for a given period of time
 ```cpp
 std::tm startDate = {0};
 startDate.tm_year = 118;
@@ -95,7 +91,7 @@ ZeroBounce::getInstance()->getApiUsage(
 );
 ```
 
-* ##### Validate an email address
+* ####### Validate an email address
 ```cpp
 std::string email = "valid@example.com";   // The email address you want to validate
 std::string ipAddress = "127.0.0.1";     // The IP Address the email signed up from (Optional)
@@ -112,7 +108,7 @@ ZeroBounce::getInstance()->validate(
 );
 ```
 
-* ##### Validate email batch
+* ####### Validate email batch
 ```cpp
 std::vector<ZBEmailToValidate> emails = {
     {"valid@example.com", "1.1.1.1"},
@@ -130,7 +126,7 @@ ZeroBounce::getInstance()->validateBatch(
 );
 ```
 
-* ##### Use the Activity API endpoint to gather insights into your subscribers'overall email engagement
+* ####### Use the Activity API endpoint to gather insights into your subscribers'overall email engagement
 ```cpp
 std::string email = "valid@example.com";    // Subscriber email address
 
@@ -145,7 +141,7 @@ ZeroBounce::getInstance()->getActivityData(
 );
 ```
 
-* ##### The sendfile API allows user to send a file for bulk email validation
+* ####### The sendfile API allows user to send a file for bulk email validation
 ```cpp
 std::string filePath = "<FILE_PATH>"; 	// The path of the csv or txt file
 int emailAddressColumn = 3; 			// The index of "email" column in the file. Index starts at 1
@@ -172,7 +168,7 @@ ZeroBounce::getInstance()->sendFile(
 );
 ```
 
-* ##### The getfile API allows users to get the validation results file for the file been submitted using sendfile API
+* ####### The getfile API allows users to get the validation results file for the file been submitted using sendfile API
 ```cpp
 std::string fileId = "<FILE_ID>";				// The returned file ID when calling sendfile API
 std::string localDownloadPath = "<FILE_DOWNLOAD_PATH>"; 	// The location where the downloaded file will be saved
@@ -189,7 +185,7 @@ ZeroBounce::getInstance()->getFile(
 );
 ```
 
-* ##### Check the status of a file uploaded via "sendFile" method
+* ####### Check the status of a file uploaded via "sendFile" method
 ```cpp
 std::string fileId = "<FILE_ID>";		// The returned file ID when calling sendfile API
 
@@ -204,7 +200,7 @@ ZeroBounce::getInstance()->fileStatus(
 );
 ```
 
-* ##### Deletes the file that was submitted using sendfile API. File can be deleted only when its status is _`Complete`_
+* ####### Deletes the file that was submitted using sendfile API. File can be deleted only when its status is _`Complete`_
 ```cpp
 std::string fileId = "<FILE_ID>";		// The returned file ID when calling sendfile API
 
@@ -219,7 +215,7 @@ ZeroBounce::getInstance()->deleteFile(
 );
 ```
 
-* ##### The scoringSendfile API allows user to send a file for bulk email validation
+* ####### The scoringSendfile API allows user to send a file for bulk email validation
 ```cpp
 std::string filePath = "<FILE_PATH>";		// The path of the csv or txt file
 int emailAddressColumn = 3; 			// The index of "email" column in the file. Index starts at 1
@@ -243,7 +239,7 @@ ZeroBounce::getInstance()->scoringSendFile(
 );
 ```
 
-* ##### The scoringGetFile API allows users to get the validation results file for the file been submitted using scoringSendfile API
+* ####### The scoringGetFile API allows users to get the validation results file for the file been submitted using scoringSendfile API
 ```cpp
 std::string fileId = "<FILE_ID>";                       	// The returned file ID when calling scoringSendfile API
 std::string localDownloadPath = "<FILE_DOWNLOAD_PATH>";  	// The location where the downloaded file will be saved
@@ -260,7 +256,7 @@ ZeroBounce::getInstance()->scoringGetFile(
 );
 ```
 
-* ##### Check the status of a file uploaded via "scoringSendFile" method
+* ####### Check the status of a file uploaded via "scoringSendFile" method
 ```cpp
 std::string fileId = "<FILE_ID>";                    // The returned file ID when calling scoringSendfile API
 
@@ -275,7 +271,7 @@ ZeroBounce::getInstance()->scoringFileStatus(
 );
 ```
 
-* ##### Deletes the file that was submitted using scoring scoringSendfile API. File can be deleted only when its status is _`Complete`_
+* ####### Deletes the file that was submitted using scoring scoringSendfile API. File can be deleted only when its status is _`Complete`_
 ```cpp
 std::string fileId = "<FILE_ID>";                       // The returned file ID when calling scoringSendfile API
 
@@ -290,7 +286,7 @@ ZeroBounce::getInstance()->scoringDeleteFile(
 );
 ```
 
-## DEVELOPMENT
+#### DEVELOPMENT
 
 It is recommended that the development should be done on Linux.
 
