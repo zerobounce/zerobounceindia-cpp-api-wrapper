@@ -351,7 +351,7 @@ void ZeroBounce::getFileInternal(
 
     try {
         std::string urlPath = (scoring ? bulkApiScoringBaseUrl : bulkApiBaseUrl)
-            + "/getFile?api_key=" + apiKey + "&file_id=" + fileId;
+            + "/getfile?api_key=" + apiKey + "&file_id=" + fileId;
         
         cpr::Response reqResponse = requestHandler->Get(cpr::Url{urlPath});
 

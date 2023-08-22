@@ -9,7 +9,7 @@
 using json = nlohmann::json;
 
 /**
- * The model used for the POST /scoring/sendFile and POST /sendFile requests.
+ * The model used for the POST /scoring/sendfile and POST /sendfile requests.
  */
 class ZBSendFileResponse {
     public:
