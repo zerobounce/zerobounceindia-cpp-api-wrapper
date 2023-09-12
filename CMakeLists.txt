@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(ZeroBounceIndia VERSION 1.0.0 LANGUAGES CXX)
+project(ZeroBounceIndia VERSION 1.1.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -12,13 +12,13 @@ include(FetchContent)
 
 # Download and build libcpr
 FetchContent_Declare(
-    cpr 
+    cpr
     GIT_REPOSITORY https://github.com/libcpr/cpr.git
     GIT_TAG 1.10.2
 )
 # Download and build nlohmann_json
 FetchContent_Declare(
-    nlohmann_json 
+    nlohmann_json
     URL https://github.com/nlohmann/json/releases/download/v3.11.2/json.tar.xz
 )
 # Download and build googletest
